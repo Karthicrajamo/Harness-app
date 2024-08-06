@@ -32,14 +32,14 @@ const calculateColumnWidths = (data, scaleFactor) => {
 
   const scaledWidths = {};
   Object.keys(widths).forEach(key => {
-    const scaledWidth = Math.max(100, widths[key] * effectiveScaleFactor); // Minimum width of 100
+    const scaledWidth = Math.max(80, widths[key] * effectiveScaleFactor); // Minimum width of 100
     scaledWidths[key] = isFinite(scaledWidth) ? scaledWidth : 100; // Ensure width is a finite number
   });
 
   return scaledWidths;
 };
 
-function makeRedable(word) {
+function makeReadable(word) {
   // Split camelCase or PascalCase string into words
   const words = word.replace(/([a-z])([A-Z])/g, '$1 $2').split(/(?=[A-Z])/);
 
@@ -51,7 +51,9 @@ function makeRedable(word) {
 }
 
 const TableComponent = ({initialData, onRowIndexSelect, noModel}) => {
+  console.log('initialData from prop : ', initialData);
   const [data, setData] = useState(initialData);
+
   const [columnWidths, setColumnWidths] = useState({});
   const [calculated, setCalculated] = useState(false);
   const [sliderValue, setSliderValue] = useState(1); // Initial value for the slider (scale factor)
@@ -69,7 +71,15 @@ const TableComponent = ({initialData, onRowIndexSelect, noModel}) => {
     // }
     setIsModel(noModel);
     setCalculated(true);
-  }, [data, sliderValue, tableIndex, selectedRows, isChecked, onRowIndexSelect,toggleRowSelection]); // Update when data or sliderValue changes
+  }, [
+    data,
+    sliderValue,
+    tableIndex,
+    selectedRows,
+    isChecked,
+    onRowIndexSelect,
+    toggleRowSelection,
+  ]); // Update when data or sliderValue changes
 
   const toggleRowSelection = rowIndex => {
     const updatedSelection = [...selectedRows];
@@ -80,9 +90,9 @@ const TableComponent = ({initialData, onRowIndexSelect, noModel}) => {
     setModalVisible(true);
     if (isModel == false) {
       onRowIndexSelect(rowIndex);
-    }setTableIndex(rowIndex),
-    console.log(selectedRows);
-  setIsChecked(false);
+    }
+    setTableIndex(rowIndex), console.log(selectedRows);
+    setIsChecked(false);
 
     // handleData(rowIndex);
   };
@@ -144,7 +154,7 @@ const TableComponent = ({initialData, onRowIndexSelect, noModel}) => {
                   {columns.map((column, index) => (
                     <View key={index} style={styles.modalRow}>
                       <Text style={styles.modalLabel}>
-                        {makeRedable(column)}:
+                        {makeReadable(column)}:
                       </Text>
                       <Text style={styles.modalValue}>
                         {String(selectedRow[column])}
@@ -180,6 +190,7 @@ const TableComponent = ({initialData, onRowIndexSelect, noModel}) => {
               padding: 5,
               borderRadius: 10,
               fontSize: 12,
+              color:'black'
             }}>
             {sliderValue.toFixed(0) * 10}%
           </Text>
@@ -188,7 +199,12 @@ const TableComponent = ({initialData, onRowIndexSelect, noModel}) => {
           <CheckBox
             title={!isChecked ? 'Select All' : 'Deselect All'}
             checked={isChecked}
-            containerStyle={{backgroundColor: 'white', borderRadius: 15}}
+            containerStyle={{
+              backgroundColor: 'white',
+              borderWidth: 0,
+              borderRadius: 5,
+              padding: 3,
+            }}
             onPress={() => {
               handleCheckbox();
               console.log(data.length);
@@ -196,64 +212,67 @@ const TableComponent = ({initialData, onRowIndexSelect, noModel}) => {
           />
         </View>
       </View>
-      <ScrollView horizontal>
-        <View style={styles.table}>
-          <View style={styles.headerRow}>
-            {columns.map((column, index) => (
-              <Text
-                key={index}
-                style={[
-                  styles.headerCell,
-                  {width: columnWidths[column], fontSize: 12},
-                ]}>
-                {makeRedable(column)}
-              </Text>
+
+      <ScrollView>
+        <ScrollView horizontal>
+          <View style={styles.table}>
+            {/* TABLE COLUMN HEADER */}
+            <View style={styles.headerRow}>
+              {columns.map((column, index) => (
+                <Text
+                  key={index}
+                  style={[
+                    styles.headerCell,
+                    {width: columnWidths[column], fontSize: 12,},
+                  ]}>
+                  {makeReadable(column)}
+                </Text>
+              ))}
+            </View>
+            {/* TABLE ROWS */}
+            {data.map((row, rowIndex) => (
+              <TouchableOpacity
+                onPress={() => {
+                  toggleRowSelection(rowIndex);
+                }}>
+                <View
+                  key={rowIndex}
+                  // style={
+                  //   tableIndex === rowIndex
+                  //     ? styles.activeSelect
+                  //     : rowIndex % 2 === 0
+                  //     ? styles.oddRow
+                  //     : styles.evenRow
+                  // }>
+                  style={
+                    isChecked === true
+                      ? styles.activeSelect
+                      : selectedRows[rowIndex] === false &&
+                        tableIndex === rowIndex
+                      ? styles.currentWithoutActiveSelect
+                      : tableIndex === rowIndex
+                      ? styles.currentSelect
+                      : selectedRows[rowIndex] === true
+                      ? styles.activeSelect
+                      : rowIndex % 2 === 0
+                      ? styles.oddRow
+                      : styles.evenRow
+                  }>
+                  {columns.map((column, cellIndex) => (
+                    <Text
+                      key={cellIndex}
+                      style={[
+                        cellIndex % 2 === 0 ? styles.oddCell : styles.oddCell,
+                        {width: columnWidths[column], fontSize: 12},
+                      ]}>
+                      {String(row[column])}
+                    </Text>
+                  ))}
+                </View>
+              </TouchableOpacity>
             ))}
           </View>
-
-          {data.map((row, rowIndex) => (
-            <TouchableOpacity
-              onPress={() => {
-                toggleRowSelection(rowIndex)
-                  
-              }}>
-              <View
-                key={rowIndex}
-                // style={
-                //   tableIndex === rowIndex
-                //     ? styles.activeSelect
-                //     : rowIndex % 2 === 0
-                //     ? styles.oddRow
-                //     : styles.evenRow
-                // }>
-                style={
-                  isChecked === true
-                    ? styles.activeSelect
-                    : selectedRows[rowIndex] === false &&
-                      tableIndex === rowIndex
-                    ? styles.currentWithoutActiveSelect
-                    : tableIndex === rowIndex
-                    ? styles.currentSelect
-                    : selectedRows[rowIndex] === true
-                    ? styles.activeSelect
-                    : rowIndex % 2 === 0
-                    ? styles.oddRow
-                    : styles.evenRow
-                }>
-                {columns.map((column, cellIndex) => (
-                  <Text
-                    key={cellIndex}
-                    style={[
-                      cellIndex % 2 === 0 ? styles.oddCell : styles.oddCell,
-                      {width: columnWidths[column], fontSize: 12},
-                    ]}>
-                    {String(row[column])}
-                  </Text>
-                ))}
-              </View>
-            </TouchableOpacity>
-          ))}
-        </View>
+        </ScrollView>
       </ScrollView>
     </View>
   );
@@ -278,6 +297,8 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 10,
+    color:'black'
+
   },
   modalRow: {
     flexDirection: 'row',
@@ -286,35 +307,41 @@ const styles = StyleSheet.create({
   },
   modalLabel: {
     fontWeight: 'bold',
+    color:'black'
   },
   modalValue: {
-    marginLeft: 70,
+    marginLeft: 30,
+    marginRight: 5,
+    color:'black'
   },
 
   activeSelect: {
     backgroundColor: '#A1EEBD',
-    borderRadius: 18,
+    borderRadius: 5,
     flexDirection: 'row',
     borderBottomWidth: 1,
     borderTopWidth: 1,
     borderColor: 'white',
+    paddingHorizontal: 5,
   },
   currentSelect: {
     backgroundColor: '#A1EEBD',
     borderWidth: 1,
 
     // backgroundColor: CustomThemeColors.primary,
-    borderRadius: 18,
+    borderRadius: 5,
     borderColor: '#73BBA3',
     flexDirection: 'row',
+    paddingHorizontal: 5,
   },
   currentWithoutActiveSelect: {
     // backgroundColor: 'transparent',  // Set the background color to transparent
     borderColor: '#73BBA3',
     borderWidth: 1,
     // backgroundColor: CustomThemeColors.primary,
-    borderRadius: 18,
+    borderRadius: 5,
     flexDirection: 'row',
+    paddingHorizontal: 5,
   },
   table: {
     borderWidth: 1,
@@ -325,9 +352,11 @@ const styles = StyleSheet.create({
     borderWidth: 0,
   },
   headerRow: {
+    paddingHorizontal: 5,
+    paddingVertical: 3,
     flexDirection: 'row',
     backgroundColor: CustomThemeColors.primary,
-    borderRadius: 15,
+    borderRadius: 5,
     borderBottomWidth: 2,
     borderColor: 'white',
     // borderTopEndRadius: 15,
@@ -337,18 +366,22 @@ const styles = StyleSheet.create({
     // backgroundColor: 'red',
     borderWidth: 1,
     borderColor: 'transparent',
+    paddingHorizontal: 5,
   },
   evenRow: {
     flexDirection: 'row',
     backgroundColor: CustomThemeColors.fadedPrimary,
-    borderRadius: 18,
+    borderRadius: 5,
     borderWidth: 1,
     borderColor: 'transparent',
     // borderBottomEndRadius:18
+    paddingHorizontal: 5,
   },
 
   headerCell: {
-    padding: 10,
+    paddingVertical: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
     // backgroundColor: CustomThemeColors.primary,
     // borderRightWidth: 1,
     // borderColor: '#ddd',
@@ -358,19 +391,21 @@ const styles = StyleSheet.create({
   },
 
   oddCell: {
-    padding: 10,
+    paddingVertical: 3,
     // borderWidth: 1,
+    color:'black',
+
 
     borderColor: '#ddd',
-    borderEndStartRadius: 10,
-    borderEndEndRadius: 10,
+    borderEndStartRadius: 5,
+    borderEndEndRadius: 5,
   },
   evenCell: {
-    padding: 10,
+    paddingVertical: 3,
     // borderWidth: 1,
     backgroundColor: 'lightgrey',
-    borderEndStartRadius: 10,
-    borderEndEndRadius: 10,
+    borderEndStartRadius: 5,
+    borderEndEndRadius: 5,
     borderColor: '#ddd',
   },
   sliderContainer: {

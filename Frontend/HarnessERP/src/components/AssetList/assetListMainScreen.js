@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import styles from './assetListMainScreenStyles';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {Picker} from '@react-native-picker/picker';
 import AssetListSort from '../AssetListSort/assetListSort';
 import AssetListFilter from '../AssetListFilter/assetListFilter';
@@ -50,6 +50,8 @@ const {width, height} = Dimensions.get('window');
 const AssetListMainScreen = () => {
   const navigation = useNavigation(); //For Nagivation
   const [isLoading, setIsLoading] = useState(false);
+
+ 
 
   //Close Button Code
   const handleHomeScreen = async () => {
@@ -107,9 +109,7 @@ const AssetListMainScreen = () => {
     fetchData();
   }, [currentPage, selectedDepartment, selectedLocation, selectedStatus]);
 
-  useEffect(() => {
-
-  }, [filteredData, searchData, handleSearchLoad]);
+  useEffect(() => {}, [filteredData, searchData, handleSearchLoad]);
 
   //department, locations, statuses use states:
   const [departments, setDepartments] = useState([]);
@@ -321,10 +321,10 @@ const AssetListMainScreen = () => {
         criteriaResponse,
       );
       setPageableData(data.pageable);
-      setFilteredData(data.content);
+      setFilteredData(criteriaResponse.content);
       console.log(
         'total pages: ============================================= ',
-        data.totalpages,
+        criteriaResponse.content,
       );
 
       setIsLoading(true);
@@ -352,6 +352,8 @@ const AssetListMainScreen = () => {
   const toTitleCase = str => {
     // console('str data>>>>>>>>>>>>>>' + str);
     // console('str data char>>>>>>>>>>>>>>' + str.charAt(0));
+    // if(data){
+    // console('str data char>>>>>>>>>>>>>>' + data);}
     if (str) {
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
@@ -365,16 +367,16 @@ const AssetListMainScreen = () => {
   const openSearchModal = () => setSearchModalVisible(true);
   const closeSearchModal = () => setSearchModalVisible(false);
 
-  const handleSearchComplete = query => {
-    // Perform the search operation here
-    const results = filteredData.filter(item =>
-      item.name.toLowerCase().includes(query.toLowerCase()),
-    ); // Example search logic
-    setSearchResults(results);
-    //   setSearchPerformed(true);
-    // setSearchData(data);
-    closeSearchModal();
-  };
+  // const handleSearchComplete = query => {
+  //   // Perform the search operation here
+  //   const results = filteredData.filter(item =>
+  //     item.name.toLowerCase().includes(query.toLowerCase()),
+  //   ); // Example search logic
+  //   setSearchResults(results);
+  //   //   setSearchPerformed(true);
+  //   // setSearchData(data);
+  //   closeSearchModal();
+  // };
 
   // const [searchPerformed, setSearchPerformed] = useState(false);
 

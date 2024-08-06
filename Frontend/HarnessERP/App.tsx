@@ -336,17 +336,17 @@ const App = () => {
                 component={TestScreen}
                 options={{headerShown: false}}
               /> */}
-              <Stack.Screen
+              {/* <Stack.Screen
                 name="TableComponent"
                 component={TableComponent}
                 options={{headerShown: false}}
-              />
+              /> */}
               {/* <Stack.Screen
                 name="CustomTable"
                 component={CustomTable}
                 options={{headerShown: false}}
                 /> */}
-                {/* <Stack.Screen
+              {/* <Stack.Screen
                 name="ResetPassword"  
                 component={ResetPassword}
                 options={{headerShown: false}}

@@ -15,13 +15,20 @@ import {FlatList} from 'react-native-gesture-handler';
 import * as Keychain from 'react-native-keychain';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import API_URL from '../ApiUrl';
+import {useNavigation, useRoute} from '@react-navigation/native';
+
 const SearchModal = ({visible, onClose, onSearch}) => {
-  // const SearchModal = ({visible, onClose, onSearch,setItemUniqueKey}) => {
   const [searchables, setSearchables] = useState([]);
 
-  // const recentSearchesNumOfColumns = 5;
-  // const screenWidth = Dimensions.get('window').width;
-  // const RecentSearchesRowWidth = screenWidth / recentSearchesNumOfColumns;
+  const route = useRoute();
+  const data = route.params?.data;
+
+  useEffect(() => {
+    if (data) {
+      console.log('Data received:', data);
+      setSearchQuery(data);
+    }
+  }, [data]);
 
   useEffect(() => {
     const loadPrivileges = async () => {
@@ -57,14 +64,10 @@ const SearchModal = ({visible, onClose, onSearch}) => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const slideAnim = useState(new Animated.Value(0))[0];
-
-  // const api1 = `http://192.168.0.169:8084/`;
-
   const [highlightSelection, setHighlightSelection] = useState(null);
-  const [selectedSearchableLocal, setSelectedSearchableLocal] = useState(null);
   const [isMatchId, setIsMatchId] = useState([]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
       Animated.timing(slideAnim, {
         toValue: 1,
@@ -89,10 +92,9 @@ const SearchModal = ({visible, onClose, onSearch}) => {
 
   const fetchSuggestions = async () => {
     try {
-      const credentials = await Keychain.getGenericPassword({service: 'jwt'});
+      const credentials = await Keychain.getGenericPassword({ service: 'jwt' });
       const token = credentials.password;
-      console.log('252f2636ft34 token with berarer : ', `${token}`);
-      // Replace with your API endpoint to fetch departments
+      console.log('Token with bearer:', `${token}`);
       const response = await fetch(
         `${API_URL}/api/assetList/suggestions?query=${searchQuery}`,
         {
@@ -107,21 +109,17 @@ const SearchModal = ({visible, onClose, onSearch}) => {
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+
       const data = await response.json();
-      console.log('response y57748789 : ===============>>>>>>>>>> ', data);
+      console.log('Response:', data);
       setSearchResults(data.searchResults); // total count of matched items
       setSuggestions(data.suggestions);
       setMatchedItems(data.matchedItems);
-      setIsMatchId(data.matchedItems.map(item => item[ItemUniqueKey]));
-      console.log('id assets:' + isMatchId);
-      fetchSearchList();
-
-      console.log('lkg767647b SearchResults', searchResults);
+      const ids = data.matchedItems.map(item => item[ItemUniqueKey]);
+      setIsMatchId(ids);
+      console.log('ID assets:', ids[0]);
     } catch (error) {
-      console.error(
-        'Error fetching suggestions in assetlist search modal:',
-        error,
-      );
+      console.error('Error fetching suggestions in assetlist search modal:', error);
     }
   };
 
@@ -142,7 +140,6 @@ const SearchModal = ({visible, onClose, onSearch}) => {
       console.log('Token for search list:', isMatchId);
       const batchSize = 100; // Define your preferred batch size
 
-      // console.log('Token for search list length:', isMatchId.length);
       for (let i = 0; i < isMatchId.length; i += batchSize) {
         const batchIds = isMatchId.slice(i, i + batchSize);
         console.log('Token for search list batchIds:', batchIds);
@@ -159,7 +156,7 @@ const SearchModal = ({visible, onClose, onSearch}) => {
         });
 
         if (!response.ok) {
-          console.error('HTTP error', response.status, response.statusText); // Additional error info
+          console.error('HTTP error', response.status, response.statusText);
           if (response.status === 401) {
             console.error('Unauthorized: Check your token and permissions');
           } else if (response.status === 403) {
@@ -172,18 +169,11 @@ const SearchModal = ({visible, onClose, onSearch}) => {
         const data = await response.json();
         console.log('Response Data:', data);
         batches.push(data);
-        // setSearchData(batches.map(item=> item));
-
-        // setDataResult([...dataResult, data]);
-        // setIsMatchId([]);
-        // setFilteredData(null)
-        console.log('DataResult[0] :' + dataaa);
       }
       console.log('DataResult :', batches);
       const dataaa = batches
         .flat()
         .filter(item => item && Object.keys(item).length > 0);
-      // setSearchData(batches.flat().filter(item => item && Object.keys(item).length > 0));
       onSearch(dataaa);
     } catch (error) {
       console.error('Error fetching search list:', error);
@@ -191,15 +181,20 @@ const SearchModal = ({visible, onClose, onSearch}) => {
   };
 
   useEffect(() => {
+    if (isMatchId.length > 0) {
+      fetchSearchList();
+    }
+  }, [isMatchId]);
+
+  useEffect(() => {
     if (searchQuery.length > 0) {
       fetchSuggestions();
     } else {
       setSuggestions([]);
     }
-  }, [searchQuery, searchResults]);
+  }, [searchQuery]);
 
   const handleSearchComplete = () => {
-    // onSearch(searchQuery);
     fetchSuggestions();
     onClose();
   };
