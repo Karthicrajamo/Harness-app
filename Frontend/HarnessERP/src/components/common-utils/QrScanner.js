@@ -50,7 +50,7 @@ const QrScanner = () => {
 
     if (e.data.length > 0) {
       // edata = e.data.substring(1).split(',')[0];
-      const values = text.substring(1, text.length - 1).split(', ');
+      const values = e.data.substring(1, e.data.length - 1).split(', ');
       edata = values[1];
     } else {
       edata = e.data;

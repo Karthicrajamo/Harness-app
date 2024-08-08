@@ -18,7 +18,7 @@ import {
 } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import styles from './assetListMainScreenStyles';
-import {useNavigation, useRoute} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {Picker} from '@react-native-picker/picker';
 import AssetListSort from '../AssetListSort/assetListSort';
 import AssetListFilter from '../AssetListFilter/assetListFilter';
@@ -50,8 +50,6 @@ const {width, height} = Dimensions.get('window');
 const AssetListMainScreen = () => {
   const navigation = useNavigation(); //For Nagivation
   const [isLoading, setIsLoading] = useState(false);
-
- 
 
   //Close Button Code
   const handleHomeScreen = async () => {
@@ -109,7 +107,12 @@ const AssetListMainScreen = () => {
     fetchData();
   }, [currentPage, selectedDepartment, selectedLocation, selectedStatus]);
 
-  useEffect(() => {}, [filteredData, searchData, handleSearchLoad]);
+  useEffect(() => {
+    // console.log('searchData' + searchData);
+    // if(searchData.length>0){
+    //   setFilteredData(null)
+    // }
+  }, [filteredData, searchData, handleSearchLoad]);
 
   //department, locations, statuses use states:
   const [departments, setDepartments] = useState([]);
@@ -125,56 +128,75 @@ const AssetListMainScreen = () => {
 
   const [filteredData, setFilteredData] = useState([]);
 
+  const [subFilteredData, setSubFilteredData] = useState([]);
+
+  useEffect(() => {
+    // if (subFilteredData >= 0) {
+    console.log(
+      'asset main : 876689090hjhjjhj87 subFilteredData : ',
+      subFilteredData,
+    );
+    setFilteredData([]);
+    setFilteredData(subFilteredData);
+    setShowSortPopup1(false);
+    setCurrentPage(1);
+    criteriaResponse.totalPages = 1;
+    // }
+  }, [subFilteredData]);
+  //prop 1
+  const filterOptionsAPI = '/api/assetList/getSubFilterOptions';
+
+  //prop 2
+  const filterCriteriaAPI = '/api/assetList/subFilterCriteria';
+
   const [pageableData, setPageableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [sizePerPage, setSizePerPage] = useState(5);
   const [previouslySelectedSort, setPreviouslySelectedSort] = useState([]);
   const [searchData, setSearchData] = useState([]);
+  const [fetchedData, setFetchedData] = useState();
 
   const [displayData, setDisplayData] = useState(filteredData);
+  const itemsPerPage = 10;
+  const [selectedItemsHistory, setSelectedItemsHistory] = useState({
+    assetClassifications: [],
+    assetTypes: [],
+    subDepartments: [],
+  });
+
+  useEffect(() => {}, [displayData]);
 
   useEffect(() => {
-    if (searchData.length > 0) {
-      setDisplayData(searchData);
-    } else {
-      setDisplayData(filteredData);
-    }
-  }, [searchData, filteredData]);
-
-  const prevPage = () => {
-    console.log('current page 567 :', currentPage);
-    console.log('current page 567 :', pageableData.pageNumber);
-    if (pageableData.pageNumber > 0) {
-      if (currentPage > 1) {
-        setCurrentPage(currentPage - 1);
-      }
-    } else {
-      setCurrentPage(criteriaResponse.totalPages);
-    }
-  };
+    const data = searchData.length > 0 ? searchData : filteredData;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setDisplayData(data.slice(startIndex, endIndex));
+  }, [searchData, filteredData, currentPage]);
 
   const nextPage = () => {
-    if (currentPage + 1 > criteriaResponse.totalPages) {
-      console.log(currentPage);
-      // Alert.alert("Your in last page");
-      setCurrentPage(1);
-    } else {
-      setCurrentPage(prev => prev + 1);
+    const totalPages = Math.ceil(
+      (searchData.length > 0 ? searchData : filteredData).length / itemsPerPage,
+    );
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
     }
   };
 
-  const lastPage = () => {
-    Alert.alert("You're on the last page");
-    setCurrentPage(criteriaResponse.totalPages); // Set to the last page
-    console.log('*56', criteriaResponse.totalPages);
-    return pageableData.totalPages - 1; // Return the new current page
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   const jumpToFirstPage = () => {
     setCurrentPage(1);
   };
+
   const jumpToLastPage = () => {
-    setCurrentPage(criteriaResponse.totalPages);
+    const totalPages = Math.ceil(
+      (searchData.length > 0 ? searchData : filteredData).length / itemsPerPage,
+    );
+    setCurrentPage(totalPages);
   };
 
   // DEPARTMENT API REQUEST -----------------------------------------------------------------------
@@ -183,7 +205,7 @@ const AssetListMainScreen = () => {
     try {
       const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
-      console.log('token with berarer : ', `${token}`);
+      console.log(' token with berarer for department: ', `${token}`);
       // Replace with your API endpoint to fetch departments
       const response = await fetch(`${API_URL}/api/department/allDepartments`, {
         method: 'GET',
@@ -197,7 +219,10 @@ const AssetListMainScreen = () => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       const data = await response.json();
-      console.log('response y5774474 : ===============>>>>>>>>>> ', data);
+      console.log(
+        'response fetch department : ===============>>>>>>>>>> ',
+        data,
+      );
       setDepartments(data);
     } catch (error) {
       console.error('Error fetching departments:', error);
@@ -228,11 +253,7 @@ const AssetListMainScreen = () => {
       console.log('response : ===============>>>>>>>>>> ', data);
       setLocations(data);
     } catch (error) {
-      if (error === 401) {
-        throw new Error('Failed to authenticate');
-      } else {
-        console.error('Error fetching locations:', error);
-      }
+      console.error('Error fetching locations:', error);
     }
   };
 
@@ -273,11 +294,6 @@ const AssetListMainScreen = () => {
       const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
       console.log('token with berarer : ', `${token}`);
-      // console.log('filtered' + filteredData);
-      console.log('searchData fetch' + searchData);
-      if (searchData.length > 0) {
-        setFilteredData(null);
-      }
       // Replace with your API endpoint to fetch Filter
 
       console.log(
@@ -321,10 +337,13 @@ const AssetListMainScreen = () => {
         criteriaResponse,
       );
       setPageableData(data.pageable);
-      setFilteredData(criteriaResponse.content);
+      setFetchedData(data);
+      setFilteredData(data);
+      console.log('data_new>>>>>>>>>>>>>>>>>>>>>>>', [data.slice(0, 9)]);
+
       console.log(
         'total pages: ============================================= ',
-        criteriaResponse.content,
+        data[0],
       );
 
       setIsLoading(true);
@@ -345,15 +364,11 @@ const AssetListMainScreen = () => {
     selectedStatus,
     currentPage,
     sortBy,
-    // filteredData
-    // searchData,
   ]);
 
   const toTitleCase = str => {
     // console('str data>>>>>>>>>>>>>>' + str);
     // console('str data char>>>>>>>>>>>>>>' + str.charAt(0));
-    // if(data){
-    // console('str data char>>>>>>>>>>>>>>' + data);}
     if (str) {
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
@@ -367,22 +382,20 @@ const AssetListMainScreen = () => {
   const openSearchModal = () => setSearchModalVisible(true);
   const closeSearchModal = () => setSearchModalVisible(false);
 
-  // const handleSearchComplete = query => {
-  //   // Perform the search operation here
-  //   const results = filteredData.filter(item =>
-  //     item.name.toLowerCase().includes(query.toLowerCase()),
-  //   ); // Example search logic
-  //   setSearchResults(results);
-  //   //   setSearchPerformed(true);
-  //   // setSearchData(data);
-  //   closeSearchModal();
-  // };
+  const handleSearchComplete = query => {
+    // Perform the search operation here
+    const results = filteredData.filter(item =>
+      item.name.toLowerCase().includes(query.toLowerCase()),
+    ); // Example search logic
+    setSearchResults(results);
+    closeSearchModal();
+  };
 
   // const [searchPerformed, setSearchPerformed] = useState(false);
 
   const handleSearchLoad = data => {
     // setSearchPerformed(true);
-    console.log('searchLOad+' + searchData);
+    console.log('searchLOad+' + data);
     setSearchData([]);
     setSearchData(data);
     setFilteredData([]);
@@ -448,6 +461,47 @@ const AssetListMainScreen = () => {
         )}
         {/* )} */}
 
+        {/* <View style={styles.headerContainer}>
+
+        <View style={{ backgroundColor: CustomThemeColors.header, flex:1, paddingLeft: 20}}>
+          <TouchableOpacity style={{}} onPress={() => navigation.openDrawer()}>
+            <MaterialIcons name="menu" size={28} style={{ color: CustomThemeColors.headerTextColor }} />
+          </TouchableOpacity>
+        </View>
+
+        <View style={{ backgroundColor: CustomThemeColors.header, flex:3,alignItems: 'center' }}>
+          <Text style={{ color: CustomThemeColors.headerTextColor, fontWeight: 'bold', fontSize: 20 }}>Asset Details</Text>
+        </View>
+
+        <View style={styles.headerRightSideUtils}>
+          <View>
+            <TouchableOpacity onPress={openSearchModal}>
+              <MaterialIcons name="search" style={styles.headerRightSideUtilsIcons} />
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity onPress={handleRefresh} >
+              <MaterialIcons name="refresh" style={styles.headerRightSideUtilsIcons} />
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity onPress={openQrScanner}>
+              <MaterialIcons name="qr-code-scanner" style={styles.headerRightSideUtilsIcons} />
+            </TouchableOpacity>
+          </View>
+
+          <View>
+            <TouchableOpacity onPress={handleHomeScreen}>
+              <MaterialIcons name="close" style={styles.headerRightSideUtilsIcons} />
+            </TouchableOpacity>
+          </View>
+          <RefreshComponent visible={refreshing} onClose={() => setRefreshing(false)} />
+
+
+        </View>
+      </View> */}
         {/* Search Modal */}
 
         <SearchModal
@@ -525,17 +579,16 @@ const AssetListMainScreen = () => {
                   onValueChange={selectedValue => {
                     setSelectedDepartment(selectedValue);
                     jumpToFirstPage();
-                    console.log('setSelectedDepartment 009', selectedValue);
+                    console.log('selectedValue 009', selectedValue);
                   }}
                   // itemStyle={styles.pickerItem} // Example of itemStyle
                 >
                   <Picker.Item label="All" value="" />
-                  {departments.map(dept => (
-                    // <Chip icon="information" onPress={() => console.log('Pressed')}>Example Chip</Chip>
+                  {departments.map((dept, index) => (
                     <Picker.Item
-                      key={dept.deptId}
-                      label={dept.deptName}
-                      value={dept.deptName}
+                      key={index.toString()}
+                      label={dept.toUpperCase()}
+                      value={dept}
                     />
                   ))}
                 </Picker>
@@ -582,13 +635,18 @@ const AssetListMainScreen = () => {
                     jumpToFirstPage();
                   }}>
                   <Picker.Item label="All" value="" />
-                  {status.map((Stat, index) => (
-                    <Picker.Item
-                      key={index.toString()}
-                      label={Stat.toUpperCase()}
-                      value={Stat}
-                    />
-                  ))}
+                  {status
+                    .filter(
+                      Stat =>
+                        !['DELETED', 'INCOMPLETE'].includes(Stat.toUpperCase()),
+                    )
+                    .map((Stat, index) => (
+                      <Picker.Item
+                        key={index.toString()}
+                        label={Stat.toUpperCase()}
+                        value={Stat}
+                      />
+                    ))}
                 </Picker>
               </View>
             </View>
@@ -598,6 +656,22 @@ const AssetListMainScreen = () => {
 
         {/* SORT AND FILTER SECTION */}
         <View style={styles.sortAndFilterContainer}>
+          {/* <View
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 44,
+              // marginVertical:10
+            }}>
+            <Skeleton
+              LinearGradientComponent={LinearGradient}
+              animation="wave"
+              width={'95%'}
+              height={30}
+              style={{ borderRadius: 15 }} />
+          </View> */}
+
           <View style={styles.sortElementContainer}>
             {isLoading ? (
               <View
@@ -735,7 +809,14 @@ const AssetListMainScreen = () => {
           )}
           {/* <AssetListFilter visible={modalVisible} onClose={handleCloseModal} /> */}
           {showSortPopup1 && (
-            <AssetListFilter onClose={() => setShowSortPopup1(false)} />
+            <AssetListFilter
+              onClose={() => setShowSortPopup1(false)}
+              setSubFilteredData={setSubFilteredData}
+              filterOptionsAPI={filterOptionsAPI}
+              filterCriteriaAPI={filterCriteriaAPI}
+              setSelectedItemsHistory={setSelectedItemsHistory}
+              selectedItemsHistory={selectedItemsHistory}
+            />
           )}
         </View>
 
@@ -819,7 +900,6 @@ const AssetListMainScreen = () => {
             </View>
           </>
         ) : (
-          // renderContent()
           <View
             style={{
               padding: 5,
@@ -854,6 +934,19 @@ const AssetListMainScreen = () => {
                                   },
                                 ]}>
                                 <Text style={styles.tagText}>{item.type}</Text>
+                              </View>
+
+                              <View
+                                style={[
+                                  styles.tag,
+                                  {
+                                    backgroundColor: green,
+                                    marginLeft: 10,
+                                  },
+                                ]}>
+                                <Text style={styles.tagText}>
+                                  {item.ownerShip}
+                                </Text>
                               </View>
                             </View>
 
@@ -961,7 +1054,7 @@ const AssetListMainScreen = () => {
                   backgroundColor: CustomThemeColors.whiteBackgroundColor,
                 }}
                 onPress={jumpToFirstPage}>
-                <View style={{}}>
+                <View>
                   <MaterialIcons
                     name="keyboard-double-arrow-left"
                     size={25}
@@ -978,7 +1071,7 @@ const AssetListMainScreen = () => {
                   backgroundColor: CustomThemeColors.whiteBackgroundColor,
                 }}
                 onPress={prevPage}>
-                <View style={{}}>
+                <View>
                   <MaterialIcons
                     name="keyboard-arrow-left"
                     size={25}
@@ -993,8 +1086,7 @@ const AssetListMainScreen = () => {
                   flexDirection: 'row',
                   justifyContent: 'center',
                   backgroundColor: CustomThemeColors.whiteBackgroundColor,
-                }}
-                onPress={handleSortButtonPress}>
+                }}>
                 <View>
                   <Text
                     style={{
@@ -1004,10 +1096,10 @@ const AssetListMainScreen = () => {
                       marginHorizontal: 10,
                     }}>
                     {currentPage} /{' '}
-                    {isNaN(criteriaResponse.totalPages) ||
-                    criteriaResponse.totalPages === 0
-                      ? 1
-                      : criteriaResponse.totalPages}
+                    {Math.ceil(
+                      (searchData.length > 0 ? searchData : filteredData)
+                        .length / itemsPerPage,
+                    )}
                   </Text>
                 </View>
               </TouchableOpacity>
@@ -1020,7 +1112,7 @@ const AssetListMainScreen = () => {
                   backgroundColor: CustomThemeColors.whiteBackgroundColor,
                 }}
                 onPress={nextPage}>
-                <View style={{}}>
+                <View>
                   <MaterialIcons
                     name="keyboard-arrow-right"
                     size={25}
@@ -1037,7 +1129,7 @@ const AssetListMainScreen = () => {
                   backgroundColor: CustomThemeColors.whiteBackgroundColor,
                 }}
                 onPress={jumpToLastPage}>
-                <View style={{}}>
+                <View>
                   <MaterialIcons
                     name="keyboard-double-arrow-right"
                     size={25}
