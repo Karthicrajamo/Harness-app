@@ -24,13 +24,6 @@ const SearchModal = ({visible, onClose, onSearch}) => {
   const data = route.params?.data;
 
   useEffect(() => {
-    if (data) {
-      console.log('Data received:', data);
-      setSearchQuery(data);
-    }
-  }, [data]);
-
-  useEffect(() => {
     const loadPrivileges = async () => {
       try {
         const credentials = await Keychain.getGenericPassword({
@@ -68,6 +61,13 @@ const SearchModal = ({visible, onClose, onSearch}) => {
   const [isMatchId, setIsMatchId] = useState([]);
 
   useEffect(() => {
+    if (data) {
+      console.log('Data received:', data);
+      setSearchQuery(data);
+    }
+  }, [data]);
+
+  useEffect(() => {
     if (visible) {
       Animated.timing(slideAnim, {
         toValue: 1,
@@ -92,9 +92,11 @@ const SearchModal = ({visible, onClose, onSearch}) => {
 
   const fetchSuggestions = async () => {
     try {
-      const credentials = await Keychain.getGenericPassword({ service: 'jwt' });
+      const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
       console.log('Token with bearer:', `${token}`);
+      console.log('searchQuery data:' + searchQuery);
+
       const response = await fetch(
         `${API_URL}/api/assetList/suggestions?query=${searchQuery}`,
         {
@@ -117,9 +119,12 @@ const SearchModal = ({visible, onClose, onSearch}) => {
       setMatchedItems(data.matchedItems);
       const ids = data.matchedItems.map(item => item[ItemUniqueKey]);
       setIsMatchId(ids);
-      console.log('ID assets:', ids[0]);
+      console.log('ID assets:', ids);
     } catch (error) {
-      console.error('Error fetching suggestions in assetlist search modal:', error);
+      console.error(
+        'Error fetching suggestions in assetlist search modal:',
+        error,
+      );
     }
   };
 

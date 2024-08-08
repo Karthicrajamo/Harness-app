@@ -1,327 +1,203 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Modal, StyleSheet,ScrollView } from 'react-native';
-import styles from './assetListFilterStyles';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import API_URL from '../ApiUrl';
 import * as Keychain from 'react-native-keychain';
-const AssetListFilter = ({ visible, onClose }) => {
+import {CustomThemeColors} from '../CustomThemeColors';
+
+const AssetListFilter = ({
+  visible,
+  onClose,
+  setSubFilteredData,
+  filterOptionsAPI,
+  filterCriteriaAPI,
+  setSelectedItemsHistory,
+  selectedItemsHistory,
+}) => {
+  const [itemUniqueKeys, setItemUniqueKeys] = useState(['']);
+  const [filteredDataLocal, setFilteredDataLocal] = useState([]);
+  const [listOfFilterOptionsMap, setListOfFilterOptionsMap] = useState([]);
+  const [selectedOptionSets, setSelectedOptionSets] = useState(null);
+  const [filterKeys, setFilterKeys] = useState(null);
+  const [highlightSelection, setHighlightSelection] = useState([]);
+  const [isSelectionValid, setIsSelectionValid] = useState(false);
+  const [selectedItems, setSelectedItems] = useState({
+    assetClassifications: [],
+    assetTypes: [],
+    subDepartments: [],
+  });
 
   useEffect(() => {
-    fetchAssetClassifications();
-    fetchAssetTypes();
-    fetchAssetSubDepartments();
-
-  }, [])
-  const [selectedOption, setSelectedOption] = useState(null);
-
- //Asset Classification Code  ----------------------------------------------------------------------------------------------------------------- 
-
-
-  const [selectedOptionsClassify, setSelectedOptionsClassify] = useState([]);
-  const [showSubOptionsClassify, setShowSubOptionsClassify] = useState(false);
-  const [selectedSubOptionsClassify, setSelectedSubOptionsClassify] = useState([]);
-
-  const [classifications, setClassifications] = useState([]);
-  
-  const fetchAssetClassifications = async () => {
-    try {
-      const credentials = await Keychain.getGenericPassword({ service: 'jwt' });
-      const token = credentials.password;
-      console.log("token with berarer : ", `${token}`);
-      // Replace with your API endpoint to fetch locations
-      const response = await fetch(`${API_URL}/api/assetList/distinctAssetClassifications`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${token}`
-          }
-        });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log("fetched all classifications : ===============>>>>>>>>>> ", data);
-      setClassifications(data);
+    if (selectedItemsHistory) {
+      setSelectedItems(selectedItemsHistory);
     }
-    catch (error) {
-      console.error('Error fetching status:', error);
-    }
-  };
-  const handleOptionSelectClassify = (option) => {
-    setSelectedOption(option === selectedOption ? null : option);
+  }, [selectedItemsHistory]);
 
-    // Toggle selection of option
-    if (selectedOptionsClassify.includes(option)) {
-      setSelectedOptionsClassify(selectedOptionsClassify.filter((item) => item !== option));
-    } else {
-      setSelectedOptionsClassify([selectedOptionsClassify, option]);
-    }
+  function convertJsonToKeyValuePairArray(jsonData) {
+    const dataArray = [];
 
-    // If "Asset Classification" is selected, show sub-options
-    if (option === 'Asset Classification') {
-      setShowSubOptionsClassify(!showSubOptionsClassify);
+    for (let key in jsonData) {
+      dataArray.push({
+        title: key,
+        data: jsonData[key],
+      });
     }
+    console.log('dataArray : ', dataArray);
+    return dataArray;
+  }
+
+  const isItemSelected = (title, element) => {
+    return selectedItems[title]?.includes(element);
   };
 
-  const handleSubOptionSelectClassify = (option) => {
-
-    // Toggle selection of sub-option
-    if (selectedSubOptionsClassify.includes(option)) {
-      setSelectedSubOptionsClassify(selectedSubOptionsClassify.filter((item) => item !== option));
-    } else {
-      setSelectedSubOptionsClassify([...selectedSubOptionsClassify, option]);
-    }
-  };
-
-  const renderCheckboxClassify = (option) => {
-    return (
-      <TouchableOpacity
-        style={[styles.checkbox, selectedSubOptionsClassify.includes(option) && styles.checked]}
-        onPress={() => handleSubOptionSelectClassify(option)}
-      >
-        {selectedSubOptionsClassify.includes(option) && <View style={styles.checkmark} />}
-      </TouchableOpacity>
+  useEffect(() => {
+    const anySelected = Object.keys(selectedItems).some(
+      key => selectedItems[key].length > 0,
     );
+    setIsSelectionValid(anySelected);
+  }, [selectedItems]);
+
+  const toggleItemSelection = (title, element) => {
+    const isSelected = selectedItems[title]?.includes(element);
+
+    setSelectedItems(prev => ({
+      ...prev,
+      [title]: isSelected
+        ? prev[title].filter(item => item !== element)
+        : [...(prev[title] || []), element],
+    }));
+
+    setSelectedItemsHistory(prev => ({
+      ...prev,
+      [title]: isSelected
+        ? prev[title].filter(item => item !== element)
+        : [...(prev[title] || []), element],
+    }));
   };
 
-  //Asset Type Code  --------------------------------------------------------------------------------------------------------------------- 
-  
-  const [selectedOptionsType, setSelectedOptionsType] = useState([]);
-  const [showSubOptionsType, setShowSubOptionsType] = useState(false);
-  const [selectedSubOptionsType, setSelectedSubOptionsType] = useState([]);
+  useEffect(() => {
+    fetchSubFilterDataByCriteria();
+    console.log('Selected items have been updated:', selectedItems);
+  }, [selectedItems]);
 
-  const [assetTypes, setAssetTypes] = useState([]);
+  useEffect(() => {
+    fetchSubFilterOptions();
+  }, []);
 
-  const fetchAssetTypes = async () => {
+  const fetchSubFilterOptions = async () => {
     try {
-      const credentials = await Keychain.getGenericPassword({ service: 'jwt' });
+      const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
-      console.log("token with berarer : ", `${token}`);
-      // Replace with your API endpoint to fetch locations
-      const response = await fetch(`${API_URL}/api/assetList/distinctAssetTypes`,
-        {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `${token}`
-          }
-        });
-  
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-  
-      const data = await response.json();
-      console.log("fetched all classifications : ===============>>>>>>>>>> ", data);
-      setAssetTypes(data);
-    }
-    catch (error) {
-      console.error('Error fetching status:', error);
-    }
-  };
-  const handleOptionSelectType = (option) => {
-    setSelectedOption(option === selectedOption ? null : option);
-
-    // Toggle selection of option
-    if (selectedOptionsType.includes(option)) {
-      setSelectedOptionsType(selectedOptionsType.filter((item) => item !== option));
-    } else {
-      setSelectedOptionsType([...selectedOptionsType, option]);
-    }
-
-    // If "Asset Type" is selected, show sub-options
-    if (option === 'Asset Type') {
-      setShowSubOptionsType(!showSubOptionsType);
-    }
-  };
-
-  const handleSubOptionSelectType = (option) => {
-    // Toggle selection of sub-option
-    if (selectedSubOptionsType.includes(option)) {
-      setSelectedSubOptionsType(selectedSubOptionsType.filter((item) => item !== option));
-    } else {
-      setSelectedSubOptionsType([...selectedSubOptionsType, option]);
-    }
-  };
-
-  const renderCheckboxType = (option) => {
-    return (
-      <TouchableOpacity
-        style={[styles.checkbox, selectedSubOptionsType.includes(option) && styles.checked]}
-        onPress={() => handleSubOptionSelectType(option)}
-      >
-        {selectedSubOptionsType.includes(option) && <View style={styles.checkmark} />}
-      </TouchableOpacity>
-    );
-  };
-
-//Asset Department Code  -------------------------------------------------------------------------------------------------------------------- 
-
-const [selectedOptionsDept, setSelectedOptionsDept] = useState([]);
-const [showSubOptionsDept, setShowSubOptionsDept] = useState(false);
-const [selectedSubOptionsDept, setSelectedSubOptionsDept] = useState([]);
-const [filterButtonVisible, setFilterButtonVisible] = useState(true);
-
-const [assetSubDepartments, setassetSubDepartments] = useState([])
-const fetchAssetSubDepartments = async () => {
-  try {
-    const credentials = await Keychain.getGenericPassword({ service: 'jwt' });
-    const token = credentials.password;
-    console.log("token with berarer : ", `${token}`);
-    // Replace with your API endpoint to fetch locations
-    const response = await fetch(`${API_URL}/api/assetList/distinctAssetTypes`,
-      {
+      const response = await fetch(`${API_URL}${filterOptionsAPI}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${token}`
-        }
+          Authorization: `${token}`,
+        },
       });
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! Status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setListOfFilterOptionsMap(convertJsonToKeyValuePairArray(data));
+      setFilterKeys(listOfFilterOptionsMap.map(item => item.title));
+    } catch (error) {
+      console.error('Error fetching status:', error);
     }
+  };
 
-    const data = await response.json();
-    console.log("fetched all classifications : ===============>>>>>>>>>> ", data);
-    setassetSubDepartments(data);
-  }
-  catch (error) {
-    console.error('Error fetching status:', error);
-  }
-};
+  const toTitleCase = str => {
+    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+  };
 
-const handleOptionSelectDept = (option) => {
-  setSelectedOption(option === selectedOption ? null : option);
+  const fetchSubFilterDataByCriteria = async () => {
+    try {
+      const credentials = await Keychain.getGenericPassword({service: 'jwt'});
+      const token = credentials.password;
+      const response = await fetch(`${API_URL}${filterCriteriaAPI}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `${token}`,
+        },
+        body: JSON.stringify({
+          classificationNames: selectedItems.assetClassifications,
+          assetTypes: selectedItems.assetTypes,
+          subDeptNames: selectedItems.subDepartments,
+        }),
+      });
 
-  // Toggle selection of option
-  if (selectedOptionsDept.includes(option)) {
-    setSelectedOptionsDept(selectedOptionsDept.filter((item) => item !== option));
-  } else {
-    setSelectedOptionsDept([...selectedOptionsDept, option]);
-  }
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
 
-  // If "Asset Department" is selected, show sub-options
-  if (option === 'Sub Department') {
-    setShowSubOptionsDept(!showSubOptionsDept);
-  }
-};
+      const data = await response.json();
+      setFilteredDataLocal(data);
+      console.log('response: ', data);
+    } catch (error) {
+      console.error('Error fetching status:', error);
+    }
+  };
 
-const handleSubOptionSelectDept = (option) => {
-  // Toggle selection of sub-option
+  const handleSubFilter = () => {
+    setSubFilteredData(filteredDataLocal);
+    console.log('filteredDataLocal: ', filteredDataLocal);
+    console.log('selectedItems: ', selectedItems);
+  };
 
-  if (selectedSubOptionsDept.includes(option)) {
-    setSelectedSubOptionsDept(selectedSubOptionsDept.filter((item) => item !== option));
-  } else {
-    setSelectedSubOptionsDept([...selectedSubOptionsDept, option]);
-  }
-};
-
-const renderCheckboxDept = (option) => {
-  
-  return (
-    
-    <TouchableOpacity
-      style={[styles.checkbox, selectedSubOptionsDept.includes(option) && styles.checked]}
-      onPress={() => handleSubOptionSelectDept(option)}
-    >
-      {selectedSubOptionsDept.includes(option) && <View style={styles.checkmark} />}
-    </TouchableOpacity>
-  );
-};  
-
-// Retrun Starts Here ------------------------------------------------------------------------------------------------------------------
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.container}>
         <View style={styles.modal}>
-        <ScrollView>
-          <View style={styles.titles}>
-            <Text style={styles.filtertitle}                  >Filters</Text>
-            <Text style={styles.closetitle} onPress={onClose} >Close  </Text>
-          </View>
-
-{/* Asset  Classification  -------------------------------------------------------------------------------------------------------*/ }
-
-          <View style={styles.filterRow}>
-            <TouchableOpacity
-              style={[styles.option, showSubOptionsClassify && styles.activeOption]}
-              onPress={() => handleOptionSelectClassify('Asset Classification')}
-            >
-              <Text>Asset Classification</Text>
-            </TouchableOpacity>
-            {showSubOptionsClassify && (
-              <View style={styles.subOptionsContainer}>
-                
-                {classifications.map((classification) =>(
-                  <TouchableOpacity style={styles.subOption} onPress={() => handleSubOptionSelectClassify(classification)}>
-                {renderCheckboxClassify(classification)}  
-                  <Text>{classification}</Text>
-                </TouchableOpacity>
-                ))}
-                
-
+          <ScrollView>
+            {listOfFilterOptionsMap.map((item, index) => (
+              <View key={index}>
+                <Text style={styles.filterTitle}>{toTitleCase(item.title)}</Text>
+                <View style={styles.filterContainer}>
+                  {item.data.map((element, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      style={[
+                        styles.filterItem,
+                        isItemSelected(item.title, element) && styles.selectedItem,
+                      ]}
+                      onPress={() => {
+                        toggleItemSelection(item.title, element);
+                      }}>
+                      <Text
+                        style={{
+                          color: isItemSelected(item.title, element) ? 'white' : 'grey',
+                        }}>
+                        {element}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
-            )}
-          </View>
-
-{/* Asset  Type --------------------------------------------------------------------------------------------------------------------- */}
-         
-          <View style={styles.filterRow}>
-            <TouchableOpacity
-              style={[styles.option, showSubOptionsType && styles.activeOption]}
-              onPress={() => handleOptionSelectType('Asset Type')}
-            >
-              <Text>Asset Type</Text>
-            </TouchableOpacity>
-            {showSubOptionsType && (
-              <View style={styles.subOptionsContainer}>                
-                {assetTypes.map((assetType) => (
-                  <TouchableOpacity style={styles.subOption} onPress={() => handleSubOptionSelectType(assetType)}>
-                  {renderCheckboxType(assetType)}
-                    <Text>{assetType}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-
-{/* Sub  Department ----------------------------------------------------------------------------------------------------------------- */}
-        
-          <View style={styles.filterRow}>
-            <TouchableOpacity
-              style={[styles.option, showSubOptionsDept && styles.activeOption]}
-              onPress={() => handleOptionSelectDept('Sub Department')}
-            >
-              <Text>Sub Department</Text>
-            </TouchableOpacity>
-            {showSubOptionsDept && (
-              <View style={styles.subOptionsContainer}>
-                {assetSubDepartments.map((assetSubDepartment) => (
-                  <TouchableOpacity style={styles.subOption} onPress={() => handleSubOptionSelectDept(assetSubDepartment)}>
-                {renderCheckboxDept(assetSubDepartment)}
-                  <Text>{assetSubDepartment}</Text>
-                </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-{/* Add more filter options as needed */}
-
-{/* Filter and cancel Button -------------------------------------------------------------------------------------------------------- */}
-         
-          <View style={styles.buttons}>
-          {selectedOption && (
-            <TouchableOpacity style={styles.button} onPress={() => console.log('Filter')}>
-              <Text style={styles.buttontext}>Filter</Text>
-            </TouchableOpacity>
-             )}
-            <TouchableOpacity style={styles.button} onPress={onClose}>
-              <Text style={styles.buttontext}>Cancel </Text>
-            </TouchableOpacity>
-          </View>
+            ))}
+            <View style={styles.buttons}>
+              <TouchableOpacity
+                style={[styles.button, !isSelectionValid && styles.buttonDisabled]}
+                onPress={() => {
+                  if (isSelectionValid) {
+                    handleSubFilter();
+                    console.log('Filter Button Clicked');
+                  }
+                }}>
+                <Text style={styles.buttonText}>Filter</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.button} onPress={onClose}>
+                <Text style={styles.buttonText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </ScrollView>
         </View>
       </View>
@@ -329,5 +205,70 @@ const renderCheckboxDept = (option) => {
   );
 };
 
-
 export default AssetListFilter;
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modal: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 20,
+    width: '90%',
+    maxHeight: '80%',
+  },
+  filterTitle: {
+    fontWeight: 'bold',
+    marginBottom: 8,
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start',
+    marginTop: 5,
+    paddingHorizontal: 5,
+  },
+  filterItem: {
+    padding: 5,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: CustomThemeColors.primary,
+    borderRadius: 20,
+    marginBottom: 10,
+    marginRight: 5,
+  },
+  selectedItem: {
+    padding: 5,
+    paddingHorizontal: 10,
+    borderWidth: 1,
+    borderColor: CustomThemeColors.primary,
+    borderRadius: 20,
+    marginBottom: 10,
+    backgroundColor: CustomThemeColors.primary,
+    color: 'white',
+    marginRight: 5,
+  },
+  buttons: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginTop: 20,
+  },
+  button: {
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    backgroundColor: '#007BFF',
+    borderRadius: 5,
+    marginLeft: 10,
+  },
+  buttonDisabled: {
+    opacity: 0.5,
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+  },
+});
