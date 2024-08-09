@@ -15,7 +15,9 @@ import {
   Animated,
   KeyboardAvoidingView,
   Alert,
+  Button,
 } from 'react-native';
+import CheckBox from '@react-native-community/checkbox';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import styles from './assetListMainScreenStyles';
 import {useNavigation} from '@react-navigation/native';
@@ -106,6 +108,27 @@ const AssetListMainScreen = () => {
     fetchStatuses();
     fetchData();
   }, [currentPage, selectedDepartment, selectedLocation, selectedStatus]);
+
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [filteredItems, setFilteredItems] = useState([]);
+
+  const handleCheckboxChange = category => {
+    if (selectedCategories.includes(category)) {
+      const updatedCategories = selectedCategories.filter(
+        item => item !== category,
+      );
+      setSelectedCategories(updatedCategories);
+      console.log('if condition', updatedCategories);
+    } else {
+      const updatedCategories = [...selectedCategories, category];
+      setSelectedCategories(updatedCategories);
+      console.log('else condition', updatedCategories);
+    }
+  };
+
+  useEffect(() => {
+    setSelectedLocation(selectedCategories);
+  }, [selectedCategories]);
 
   useEffect(() => {
     // console.log('searchData' + searchData);
@@ -296,16 +319,15 @@ const AssetListMainScreen = () => {
       console.log('token with berarer : ', `${token}`);
       // Replace with your API endpoint to fetch Filter
 
-      console.log(
-        `${API_URL}/api/assetList/mainFilters?currentPage=${
-          currentPage - 1
-        }&sizePerPage=${sizePerPage}`,
-      );
+      // console.log(
+      //   `${API_URL}/api/assetList/mainFilters?currentPage=${
+      //     currentPage - 1
+      //   }&sizePerPage=${sizePerPage}`,
+      // );
 
       const response = await fetch(
-        `${API_URL}/api/assetList/mainFilters?currentPage=${
-          currentPage - 1
-        }&sizePerPage=${sizePerPage}`,
+        `${API_URL}/api/assetList/mainFilters?currentPage=${currentPage - 1}
+        &sizePerPage=${sizePerPage}`,
         {
           method: 'POST',
           headers: {
@@ -653,6 +675,36 @@ const AssetListMainScreen = () => {
           )}
         </View>
         {/* --------------------- Popup List End For All Three ---------------------------------------------- */}
+        <View style={{padding: 20}}>
+          <Text>Select Categories:</Text>
+          {locations.map((location, index) => (
+            <View
+              key={index}
+              style={{flexDirection: 'row', alignItems: 'center'}}>
+              <CheckBox
+                value={selectedCategories.includes(location.locationName)}
+                onValueChange={() =>
+                  handleCheckboxChange(location.locationName)
+                }
+              />
+              <Text>{location.locationName}</Text>
+            </View>
+          ))}
+          <Button
+            title="Apply Filter"
+            onPress={() => {
+              console.log('locationCat id', selectedCategories);
+              console.log('location id', selectedLocation);
+              fetchData();
+            }}
+          />
+          <Text>Filtered Items:</Text>
+          <FlatList
+            data={filteredItems}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({item}) => <Text>{item}</Text>}
+          />
+        </View>
 
         {/* SORT AND FILTER SECTION */}
         <View style={styles.sortAndFilterContainer}>
@@ -940,7 +992,7 @@ const AssetListMainScreen = () => {
                                 style={[
                                   styles.tag,
                                   {
-                                    backgroundColor: green,
+                                    backgroundColor: 'green',
                                     marginLeft: 10,
                                   },
                                 ]}>
