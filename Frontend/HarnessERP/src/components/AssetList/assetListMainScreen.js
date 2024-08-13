@@ -98,8 +98,6 @@ const AssetListMainScreen = () => {
     setDepModalVisible(false);
   };
 
-  const [qrScannerOpen, setQrScannerOpen] = useState(false);
-
   const openQrScanner = () => {
     navigation.navigate('QrScanner');
   };
@@ -117,54 +115,84 @@ const AssetListMainScreen = () => {
   const [selectedDepCategories, setSelectedDepCategories] = useState([]);
   const [selectedStatusCategories, setSelectedStatusCategories] = useState([]);
   const [filteredItems, setFilteredItems] = useState([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const handleLocSelectAllChange = () => {
+    if (selectAll) {
+      // If "Select All" is currently checked, uncheck all locations
+      setTempSelectedLocCategories([]);
+    } else {
+      // If "Select All" is not checked, check all locations
+      setTempSelectedLocCategories(locations.map(loc => loc.locationName)); // Ensure `locations` is the full list of location names
+    }
+    setSelectAll(!selectAll); // Toggle "Select All" state
+  };
+
+  const handleDepSelectAllChange = () => {
+    if (selectAll) {
+      // If "Select All" is currently checked, uncheck all departments
+      setTempSelectedDepCategories([]);
+    } else {
+      // If "Select All" is not checked, check all departments
+      setTempSelectedDepCategories(departments); // Assuming `departments` is the list of all department categories
+    }
+    setSelectAll(!selectAll); // Toggle "Select All" state
+  };
+
+  const handleSelectAllChange = () => {
+    if (selectAll) {
+      // If "Select All" is currently checked, uncheck everything
+      setTempSelectedStatusCategories([]);
+    } else {
+      // If "Select All" is not checked, check everything
+      setTempSelectedStatusCategories(status); // Assuming `status` is the list of all status categories
+    }
+    setSelectAll(!selectAll); // Toggle "Select All" state
+  };
 
   const handleCheckboxChange = category => {
-    if (selectedCategories.includes(category)) {
-      // If the category is already selected and the checkbox is unchecked, remove it from selectedCategories and selectedLocation
-      const updatedCategories = selectedCategories.filter(
+    let updatedCategories;
+
+    if (tempSelectedLocCategories.includes(category)) {
+      // Remove category if already selected
+      updatedCategories = tempSelectedLocCategories.filter(
         item => item !== category,
       );
-      setSelectedCategories(updatedCategories);
-
-      const updatedLocations = selectedLocation.filter(
-        location => location !== category,
-      );
-      setSelectedLocation(updatedLocations);
-
-      console.log('Unchecked,locs updatedCategories:', updatedCategories);
-      console.log('Unchecked,locs updatedLocations:', updatedLocations);
     } else {
-      // If the checkbox is checked, add the category to selectedCategories and selectedLocation
-      const updatedCategories = [...selectedCategories, category];
-      setSelectedCategories(updatedCategories);
-      setSelectedLocation(updatedCategories); // Keep selectedLocation in sync
+      // Add category if not already selected
+      updatedCategories = [...tempSelectedLocCategories, category];
+    }
 
-      console.log('Checked, updatedCategories:', updatedCategories);
+    setTempSelectedLocCategories(updatedCategories);
+
+    // Update "Select All" state based on whether all items are selected
+    if (updatedCategories.length === locations.length) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
     }
   };
-  const handleDepCheckboxChange = category => {
-    if (selectedDepCategories.includes(category)) {
-      // If the category is already selected and the checkbox is unchecked, remove it from selectedDepCategories
-      const updatedCategories = selectedDepCategories.filter(
-        item => item !== category,
-      );
-      setSelectedDepCategories(updatedCategories);
 
-      // Update selectedDepartment accordingly
-      const updatedDepart = selectedDepartment.filter(
-        depart => depart !== category,
-      );
-      setSelectedDepartment(updatedDepart);
+  const handleDepCheckboxChange = department => {
+    let updatedCategories;
 
-      console.log('Unchecked,dep updatedCategories:', updatedCategories);
-      console.log('Unchecked,dep updatedDepartments:', updatedDepart);
+    if (tempSelectedDepCategories.includes(department)) {
+      // Remove department if already selected
+      updatedCategories = tempSelectedDepCategories.filter(
+        item => item !== department,
+      );
     } else {
-      // If the checkbox is checked, add the category to selectedDepCategories
-      const updatedCategories = [...selectedDepCategories, category];
-      setSelectedDepCategories(updatedCategories);
-      setSelectedDepartment(updatedCategories);
+      // Add department if not already selected
+      updatedCategories = [...tempSelectedDepCategories, department];
+    }
 
-      console.log('Checked,dep updatedCategories:', updatedCategories);
+    setTempSelectedDepCategories(updatedCategories);
+
+    // Update "Select All" state based on whether all items are selected
+    if (updatedCategories.length === departments.length) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
     }
   };
 
@@ -195,30 +223,32 @@ const AssetListMainScreen = () => {
   //     console.log('Checked,status updatedStatus:', selectedStatus);
   //   }
   // };
-  const handleStatusCheckboxChange = (category) => {
+  const handleStatusCheckboxChange = category => {
+    let updatedCategories;
+
     if (tempSelectedStatusCategories.includes(category)) {
-      // If the category is already selected and the checkbox is unchecked, remove it from tempSelectedStatusCategories
-      const updatedCategories = tempSelectedStatusCategories.filter(
+      // Remove category if already selected
+      updatedCategories = tempSelectedStatusCategories.filter(
         item => item !== category,
       );
-      setTempSelectedStatusCategories(updatedCategories);
-  
-      console.log('Unchecked, tempSelectedStatusCategories:', updatedCategories);
     } else {
-      // If the checkbox is checked, add the category to tempSelectedStatusCategories
-      const updatedCategories = [...tempSelectedStatusCategories, category];
-      setTempSelectedStatusCategories(updatedCategories);
-  
-      console.log('Checked, tempSelectedStatusCategories:', updatedCategories);
+      // Add category if not already selected
+      updatedCategories = [...tempSelectedStatusCategories, category];
+    }
+
+    setTempSelectedStatusCategories(updatedCategories);
+
+    // Update "Select All" state based on whether all items are selected
+    if (updatedCategories.length === status.length) {
+      setSelectAll(true);
+    } else {
+      setSelectAll(false);
     }
   };
-  
 
   // useEffect(() => {
   //   setSelectedLocation(selectedCategories);
   // }, [selectedLocation]);
-
- 
 
   //department, locations, statuses use states:
   const [departments, setDepartments] = useState([]);
@@ -246,7 +276,7 @@ const AssetListMainScreen = () => {
     setFilteredData(subFilteredData);
     setShowSortPopup1(false);
     setCurrentPage(1);
-    criteriaResponse.totalPages = 1;
+    // criteriaResponse.totalPages = 1;
     // }
   }, [subFilteredData]);
   //prop 1
@@ -260,12 +290,17 @@ const AssetListMainScreen = () => {
   const [sizePerPage, setSizePerPage] = useState(5);
   const [previouslySelectedSort, setPreviouslySelectedSort] = useState([]);
   const [searchData, setSearchData] = useState([]);
-  const [fetchedData, setFetchedData] = useState();
-  const [tempSelectedStatusCategories, setTempSelectedStatusCategories] = useState([...selectedStatusCategories]);
-
+  const [tempSelectedStatusCategories, setTempSelectedStatusCategories] =
+    useState([...selectedStatusCategories]);
+  const [tempSelectedDepCategories, setTempSelectedDepCategories] = useState([
+    ...selectedDepCategories,
+  ]);
+  const [tempSelectedLocCategories, setTempSelectedLocCategories] = useState([
+    ...selectedCategories,
+  ]);
 
   const [displayData, setDisplayData] = useState(filteredData);
-  const itemsPerPage = 10;
+  const itemsPerPage = 1;
   const [selectedItemsHistory, setSelectedItemsHistory] = useState({
     assetClassifications: [],
     assetTypes: [],
@@ -274,16 +309,26 @@ const AssetListMainScreen = () => {
   useEffect(() => {
     // Fetch data whenever selectedStatusCategories or currentPage changes
     fetchData();
-  }, [selectedStatusCategories, currentPage]);
-  
+  }, [
+    selectedStatusCategories,
+    selectedDepCategories,
+    selectedCategories,
+    currentPage,
+  ]);
+
   useEffect(() => {
     // console.log('searchData' + searchData);
     // if(searchData.length>0){
     //   setFilteredData(null)
     // }
-  }, [filteredData, searchData, handleSearchLoad,tempSelectedStatusCategories]);
+  }, [
+    filteredData,
+    searchData,
+    handleSearchLoad,
+    tempSelectedStatusCategories,
+  ]);
 
-  useEffect(() => {}, [displayData,tempSelectedStatusCategories]);
+  useEffect(() => {}, [displayData, tempSelectedStatusCategories]);
 
   useEffect(() => {
     const data = searchData.length > 0 ? searchData : filteredData;
@@ -314,15 +359,23 @@ const AssetListMainScreen = () => {
   };
 
   const jumpToFirstPage = () => {
+    const data = searchData.length > 0 ? searchData : filteredData;
+  
+    const totalPages = Math.ceil(data.length / itemsPerPage);
+  
     setCurrentPage(1);
+  
     const startIndex = 0;
     const endIndex = startIndex + itemsPerPage;
-    setDisplayData(filteredData.slice(startIndex, endIndex));
+  
+    setDisplayData(data.slice(startIndex, endIndex));
   };
+  
 
   const jumpToLastPage = () => {
     const data = searchData.length > 0 ? searchData : filteredData;
     const totalPages = Math.ceil(data.length / itemsPerPage);
+    console.log("totalPages___"+totalPages)
     setCurrentPage(totalPages);
     const startIndex = (totalPages - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -425,12 +478,12 @@ const AssetListMainScreen = () => {
     }
   };
 
-  
   // FILTERED DATA
   const fetchData = async () => {
     try {
       console.log('sortBy:', sortBy);
       setIsLoading(true);
+
 
       const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
@@ -470,13 +523,18 @@ const AssetListMainScreen = () => {
           selectedStatus.length === 0 || selectedStatus.includes(item.status);
         return locationMatch && departmentMatch && statusMatch;
       });
+      // if(selectedDepartment.length > 0 || selectedLocation.length > 0 || selectedStatus.length > 0)
+      //   setSubFilteredData([])
 
       // Process and update the filtered data
       setSearchData([]);
       setCriteriaResponse(filteredData);
       setPageableData(filteredData.pageable || {}); // Assuming pageable data is the same for all requests
-      setFetchedData(filteredData);
       setFilteredData(filteredData);
+      // if(subFilteredData.length > 0){
+      //   setFilteredData([])
+      //   setFilteredData(subFilteredData)
+      // }
 
       console.log('Filtered data:', filteredData.slice(0, 9));
     } catch (error) {
@@ -487,7 +545,6 @@ const AssetListMainScreen = () => {
   };
 
   useEffect(() => {
-    // Fetch data whenever any filter changes
     fetchData();
   }, [
     // selectedDepartment,
@@ -498,8 +555,7 @@ const AssetListMainScreen = () => {
   ]);
 
   const toTitleCase = str => {
-    // console('str data>>>>>>>>>>>>>>' + str);
-    // console('str data char>>>>>>>>>>>>>>' + str.charAt(0));
+
     if (str) {
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
@@ -513,28 +569,16 @@ const AssetListMainScreen = () => {
   const openSearchModal = () => setSearchModalVisible(true);
   const closeSearchModal = () => setSearchModalVisible(false);
 
-  const handleSearchComplete = query => {
-    // Perform the search operation here
-    const results = filteredData.filter(item =>
-      item.name.toLowerCase().includes(query.toLowerCase()),
-    ); // Example search logic
-    setSearchResults(results);
-    closeSearchModal();
-  };
-
-  // const [searchPerformed, setSearchPerformed] = useState(false);
 
   const handleSearchLoad = data => {
-    // setSearchPerformed(true);
     console.log('searchLOad+' + data);
+    setCurrentPage(1)
     setSearchData([]);
     setSearchData(data);
     setFilteredData([]);
     setFilteredData(data);
   };
 
-  //Refresh Component
-  const [refreshing, setRefreshing] = useState(false);
 
   const handleRefresh = () => {
     // Perform refresh actions here
@@ -749,11 +793,36 @@ const AssetListMainScreen = () => {
               width: '95%',
               overflow: 'hidden',
               marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
             }}>
-            <Button
-              title="Department"
-              onPress={() => setDepModalVisible(true)}
-            />
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Department
+              </Text>
+            </View>
+
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setDepModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {' '}
+                {selectedDepCategories.length > 0
+                  ? selectedDepCategories.join(', ')
+                  : 'All'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
         <View style={{alignItems: 'center'}}>
@@ -763,8 +832,36 @@ const AssetListMainScreen = () => {
               width: '95%',
               overflow: 'hidden',
               marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
             }}>
-            <Button title="Location" onPress={() => setModalVisible(true)} />
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Location
+              </Text>
+            </View>
+
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {' '}
+                {selectedCategories.length > 0
+                  ? selectedCategories.join(', ')
+                  : 'All'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
         <View style={{alignItems: 'center'}}>
@@ -774,12 +871,35 @@ const AssetListMainScreen = () => {
               width: '95%',
               overflow: 'hidden',
               marginTop: 5,
-              mariginBottom: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
             }}>
-            <Button
-              title="Status"
-              onPress={() => setStatusModalVisible(true)}
-            />
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Status
+              </Text>
+            </View>
+
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setStatusModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {selectedStatusCategories.length > 0
+                  ? selectedStatusCategories.join(', ')
+                  : 'All'}
+              </Text>
+            </TouchableOpacity>
           </View>
         </View>
 
@@ -787,21 +907,37 @@ const AssetListMainScreen = () => {
         <Modal
           visible={depModalVisible}
           animationType="slide"
-          onRequestClose={() => setDepModalVisible(false)} // Close modal on hardware back button
-        >
+          onRequestClose={() => {
+            setTempSelectedDepCategories([...selectedDepCategories]); // Revert changes
+            setDepModalVisible(false);
+          }}>
           <View style={styles.modalContainer}>
             <TouchableOpacity
               style={styles.closeIconContainer}
-              onPress={() => setDepModalVisible(false)}>
+              onPress={() => {
+                setTempSelectedDepCategories([...selectedDepCategories]); // Revert changes
+                setDepModalVisible(false);
+              }}>
               <Icon name="close" size={24} color="#000" />
             </TouchableOpacity>
-            {/* Render the list of departments with checkboxes */}
+
+            {/* "Select All" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleDepSelectAllChange} // Function to handle "Select All" for departments
+              />
+              <Text style={styles.checkboxLabel}>Select All</Text>
+            </View>
+
+            {/* Individual Department Checkboxes */}
             {departments.map((department, index) => (
               <View key={index} style={styles.checkboxContainer}>
                 <CheckBox
-                  value={selectedDepCategories.includes(department)}
-                  key={index}
-                  onValueChange={() => handleDepCheckboxChange(department)}
+                  value={tempSelectedDepCategories.includes(department)}
+                  onValueChange={
+                    () => handleDepCheckboxChange(department) // Function to handle individual checkbox change
+                  }
                 />
                 <Text style={styles.checkboxLabel}>{department}</Text>
               </View>
@@ -811,45 +947,52 @@ const AssetListMainScreen = () => {
             <Button
               title="Apply Filter"
               onPress={() => {
-                console.log('Selected Categories:', selectedDepCategories);
-
-                setSelectedDepartment(selectedDepCategories);
+                setSelectedDepCategories(tempSelectedDepCategories);
+                setSelectedDepartment(tempSelectedDepCategories);
                 setCurrentPage(1);
-
                 fetchData();
-
                 setDepModalVisible(false);
               }}
             />
-
-            {/* Render the filtered items */}
-            <FlatList
-              data={filteredItems}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item}) => <Text>{item}</Text>}
-            />
           </View>
         </Modal>
+
         {/* Location Filter */}
         <Modal
           visible={modalVisible}
           animationType="slide"
-          onRequestClose={() => setModalVisible(false)} // Close modal on hardware back button
-        >
+          onRequestClose={() => {
+            setTempSelectedLocCategories([...selectedCategories]); // Revert changes
+            setModalVisible(false); // Close modal on hardware back button
+          }}>
           <View style={styles.modalContainer}>
             <TouchableOpacity
               style={styles.closeIconContainer}
-              onPress={() => setModalVisible(false)}>
+              onPress={() => {
+                setTempSelectedLocCategories([...selectedCategories]); // Revert changes
+                setModalVisible(false);
+              }}>
               <Icon name="close" size={24} color="#000" />
             </TouchableOpacity>
-            {/* Render the list of locations with checkboxes */}
+
+            {/* "Select All" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleLocSelectAllChange} // Function to handle "Select All" for locations
+              />
+              <Text style={styles.checkboxLabel}>Select All</Text>
+            </View>
+
+            {/* Individual Location Checkboxes */}
             {locations.map((location, index) => (
               <View key={index} style={styles.checkboxContainer}>
                 <CheckBox
-                  value={selectedCategories.includes(location.locationName)}
-                  key={index}
-                  onValueChange={() =>
-                    handleCheckboxChange(location.locationName)
+                  value={tempSelectedLocCategories.includes(
+                    location.locationName,
+                  )}
+                  onValueChange={
+                    () => handleCheckboxChange(location.locationName) // Function to handle individual checkbox change
                   }
                 />
                 <Text style={styles.checkboxLabel}>
@@ -862,78 +1005,66 @@ const AssetListMainScreen = () => {
             <Button
               title="Apply Filter"
               onPress={() => {
-                // Log the selected categories and locations before fetching data
-                console.log('Selected Categories:', selectedCategories);
-
-                // Set the selected categories as the selected locations
-                setSelectedLocation(selectedCategories);
-
-                // Fetch data based on the selected locations
+                setSelectedCategories(tempSelectedLocCategories);
+                setSelectedLocation(tempSelectedLocCategories);
                 setCurrentPage(1);
                 fetchData();
-
-                // Close the modal after applying the filter
                 setModalVisible(false);
               }}
             />
+          </View>
+        </Modal>
 
-            {/* Render the filtered items */}
-            <FlatList
-              data={filteredItems}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({item}) => <Text>{item}</Text>}
+        <Modal
+          visible={statusModalVisible}
+          animationType="slide"
+          onRequestClose={() => {
+            setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
+            setStatusModalVisible(false);
+          }}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeIconContainer}
+              onPress={() => {
+                setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
+                setStatusModalVisible(false);
+              }}>
+              <Icon name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* "Select All" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleSelectAllChange}
+              />
+              <Text style={styles.checkboxLabel}>Select All</Text>
+            </View>
+
+            {/* Individual Status Checkboxes */}
+            {status.map((statusItem, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <CheckBox
+                  value={tempSelectedStatusCategories.includes(statusItem)}
+                  onValueChange={() => handleStatusCheckboxChange(statusItem)}
+                />
+                <Text style={styles.checkboxLabel}>{statusItem}</Text>
+              </View>
+            ))}
+
+            {/* Apply Filter Button */}
+            <Button
+              title="Apply Filter"
+              onPress={() => {
+                setSelectedStatusCategories(tempSelectedStatusCategories);
+                setSelectedStatus(tempSelectedStatusCategories);
+                setCurrentPage(1);
+                fetchData();
+                setStatusModalVisible(false);
+              }}
             />
           </View>
         </Modal>
-        <Modal
-  visible={statusModalVisible}
-  animationType="slide"
-  onRequestClose={() => {
-    setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
-    setStatusModalVisible(false);
-  }}
->
-  <View style={styles.modalContainer}>
-    <TouchableOpacity
-      style={styles.closeIconContainer}
-      onPress={() => {
-        setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
-        setStatusModalVisible(false);
-      }}
-    >
-      <Icon name="close" size={24} color="#000" />
-    </TouchableOpacity>
-
-    {status.map((statusItem, index) => (
-      <View key={index} style={styles.checkboxContainer}>
-        <CheckBox
-          value={tempSelectedStatusCategories.includes(statusItem)}
-          onValueChange={() => handleStatusCheckboxChange(statusItem)}
-        />
-        <Text style={styles.checkboxLabel}>{statusItem}</Text>
-      </View>
-    ))}
-
-    <Button
-      title="Apply Filter"
-      onPress={() => {
-        console.log('Selected Categories:', tempSelectedStatusCategories);
-        setSelectedStatusCategories(tempSelectedStatusCategories);
-        setSelectedStatus(tempSelectedStatusCategories);// Apply changes
-        console.log('Selected Categories:', );
-        setCurrentPage(1);
-        fetchData();
-        setStatusModalVisible(false);
-      }}
-    />
-
-    <FlatList
-      data={filteredItems}
-      keyExtractor={(item, index) => index.toString()}
-      renderItem={({ item }) => <Text>{item}</Text>}
-    />
-  </View>
-</Modal>
 
         {/* SORT AND FILTER SECTION */}
         <View style={styles.sortAndFilterContainer}>
