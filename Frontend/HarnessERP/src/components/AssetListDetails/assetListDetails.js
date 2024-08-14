@@ -92,6 +92,7 @@ function AssetListDetails(props) {
       const data = await response.json();
 
       setSubDetails(data);
+      console.log('fetchSubDetails data >>>>>>>>>>>>>>>>>>>>>>>>>>', data);
     } catch (error) {
       console.error('Error fetching subdetails:', error);
     }
@@ -497,78 +498,187 @@ function AssetListDetails(props) {
                   <View style={{flex: 1}}>
                     <View>
                       <Text style={styles.footDetailsHeadText}>Department</Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.deptName}
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.deptName ||
+                          assetItem.deptName.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.deptName &&
+                        assetItem.deptName.toString().trim() !== ''
+                          ? assetItem.deptName
+                          : '-'}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>
                         Acquisation Date
                       </Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.acquisitionDate}
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.acquisitionDate ||
+                          assetItem.acquisitionDate.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.acquisitionDate &&
+                        assetItem.acquisitionDate.toString().trim() !== ''
+                          ? assetItem.acquisitionDate
+                          : '-'}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>
                         Supplier Name
                       </Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.supplierName}
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.supplierName ||
+                          assetItem.supplierName.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.supplierName &&
+                        assetItem.supplierName.toString().trim() !== ''
+                          ? assetItem.supplierName
+                          : '-'}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>
                         Depreciated %
                       </Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.purchaseVal} %
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.purchaseVal ||
+                          assetItem.purchaseVal.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.purchaseVal &&
+                        assetItem.purchaseVal.toString().trim() !== ''
+                          ? `${assetItem.purchaseVal} %`
+                          : '-'}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>
                         Salvage Value
                       </Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.salvageVal}
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.salvageVal ||
+                          assetItem.salvageVal.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.salvageVal &&
+                        assetItem.salvageVal.toString().trim() !== ''
+                          ? assetItem.salvageVal
+                          : '-'}
                       </Text>
                     </View>
                   </View>
                   <View style={{flex: 1}}>
-                    <View>
+                    {/* <View>
                       <Text style={styles.footDetailsHeadText}>
                         Sub-Department
                       </Text>
                       <Text style={styles.footDetailsBodyText}>
                         {assetItem.subDeptName}
                       </Text>
+                    </View> */}
+                    <View>
+                      <Text style={styles.footDetailsHeadText}>
+                        Sub-Department
+                      </Text>
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.subDeptName ||
+                          assetItem.subDeptName.trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.subDeptName &&
+                        assetItem.subDeptName.trim() !== ''
+                          ? assetItem.subDeptName
+                          : '-'}
+                      </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>Life Time</Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.lifetimeOfAssetValue} - Years
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.lifetimeOfAssetValue ||
+                          assetItem.lifetimeOfAssetValue.toString().trim() ===
+                            ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.lifetimeOfAssetValue &&
+                        assetItem.lifetimeOfAssetValue.toString().trim() !== ''
+                          ? `${assetItem.lifetimeOfAssetValue} - ${assetItem.lifetimeOfAssetPeriod}`
+                          : '-'}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>
                         Purchase Value
                       </Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.purchaseVal}
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.purchaseVal ||
+                          assetItem.purchaseVal.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.purchaseVal &&
+                        assetItem.purchaseVal.toString().trim() !== ''
+                          ? assetItem.purchaseVal
+                          : '-'}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>
                         Depreciated Value
                       </Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.purchaseVal}
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.purchaseVal ||
+                          assetItem.purchaseVal.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.purchaseVal &&
+                        assetItem.purchaseVal.toString().trim() !== ''
+                          ? assetItem.purchaseVal
+                          : '-'}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.footDetailsHeadText}>Book Value</Text>
-                      <Text style={styles.footDetailsBodyText}>
-                        {assetItem.bookValue}
+                      <Text
+                        style={[
+                          styles.footDetailsBodyText,
+                          !assetItem.bookValue ||
+                          assetItem.bookValue.toString().trim() === ''
+                            ? styles.defaultText
+                            : null,
+                        ]}>
+                        {assetItem.bookValue &&
+                        assetItem.bookValue.toString().trim() !== ''
+                          ? assetItem.bookValue
+                          : '-'}
                       </Text>
                     </View>
                   </View>
@@ -879,6 +989,9 @@ const styles = StyleSheet.create({
     color: 'grey',
     textAlign: 'left',
     marginLeft: 5,
+  },
+  defaultText: {
+    color: 'blue', // Default text color is blue
   },
 });
 
