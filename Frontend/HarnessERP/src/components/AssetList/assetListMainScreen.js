@@ -300,7 +300,7 @@ const AssetListMainScreen = () => {
   ]);
 
   const [displayData, setDisplayData] = useState(filteredData);
-  const itemsPerPage = 1;
+  const itemsPerPage = 10;
   const [selectedItemsHistory, setSelectedItemsHistory] = useState({
     assetClassifications: [],
     assetTypes: [],
@@ -360,22 +360,21 @@ const AssetListMainScreen = () => {
 
   const jumpToFirstPage = () => {
     const data = searchData.length > 0 ? searchData : filteredData;
-  
+
     const totalPages = Math.ceil(data.length / itemsPerPage);
-  
+
     setCurrentPage(1);
-  
+
     const startIndex = 0;
     const endIndex = startIndex + itemsPerPage;
-  
+
     setDisplayData(data.slice(startIndex, endIndex));
   };
-  
 
   const jumpToLastPage = () => {
     const data = searchData.length > 0 ? searchData : filteredData;
     const totalPages = Math.ceil(data.length / itemsPerPage);
-    console.log("totalPages___"+totalPages)
+    console.log('totalPages___' + totalPages);
     setCurrentPage(totalPages);
     const startIndex = (totalPages - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
@@ -484,7 +483,6 @@ const AssetListMainScreen = () => {
       console.log('sortBy:', sortBy);
       setIsLoading(true);
 
-
       const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
       console.log('Token with bearer:', token);
@@ -555,7 +553,6 @@ const AssetListMainScreen = () => {
   ]);
 
   const toTitleCase = str => {
-
     if (str) {
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
@@ -569,16 +566,14 @@ const AssetListMainScreen = () => {
   const openSearchModal = () => setSearchModalVisible(true);
   const closeSearchModal = () => setSearchModalVisible(false);
 
-
   const handleSearchLoad = data => {
     console.log('searchLOad+' + data);
-    setCurrentPage(1)
+    setCurrentPage(1);
     setSearchData([]);
     setSearchData(data);
     setFilteredData([]);
     setFilteredData(data);
   };
-
 
   const handleRefresh = () => {
     // Perform refresh actions here
@@ -786,6 +781,7 @@ const AssetListMainScreen = () => {
           )}*/}
         {/* </View>  */}
         {/* --------------------- Popup List End For All Three ---------------------------------------------- */}
+
         <View style={{alignItems: 'center'}}>
           <View
             style={{
@@ -939,7 +935,9 @@ const AssetListMainScreen = () => {
                     () => handleDepCheckboxChange(department) // Function to handle individual checkbox change
                   }
                 />
-                <Text style={styles.checkboxLabel}>{department}</Text>
+                <Text style={styles.checkboxLabel}>
+                  {toTitleCase(department)}
+                </Text>
               </View>
             ))}
 
@@ -996,7 +994,7 @@ const AssetListMainScreen = () => {
                   }
                 />
                 <Text style={styles.checkboxLabel}>
-                  {location.locationName}
+                  {toTitleCase(location.locationName)}
                 </Text>
               </View>
             ))}
@@ -1048,7 +1046,9 @@ const AssetListMainScreen = () => {
                   value={tempSelectedStatusCategories.includes(statusItem)}
                   onValueChange={() => handleStatusCheckboxChange(statusItem)}
                 />
-                <Text style={styles.checkboxLabel}>{statusItem}</Text>
+                <Text style={styles.checkboxLabel}>
+                  {toTitleCase(statusItem)}
+                </Text>
               </View>
             ))}
 
@@ -1331,7 +1331,10 @@ const AssetListMainScreen = () => {
                               <View
                                 style={[
                                   styles.tag,
-                                  {backgroundColor: CustomThemeColors.primary},
+                                  {
+                                    backgroundColor: CustomThemeColors.primary,
+                                    maxWidth: '70%',
+                                  },
                                 ]}>
                                 <Text style={styles.tagText}>
                                   {item.assetCode}
@@ -1342,18 +1345,27 @@ const AssetListMainScreen = () => {
                                   styles.tag,
                                   {
                                     backgroundColor: CustomThemeColors.primary,
-                                    marginLeft: 10,
+                                    marginLeft: 5,
+                                    maxWidth: '26%',
                                   },
                                 ]}>
-                                <Text style={styles.tagText}>{item.type}</Text>
+                                <Text
+                                  style={styles.tagText}
+                                  numberOfLines={1}
+                                  ellipsizeMode="tail">
+                                  {item.type}
+                                </Text>
                               </View>
 
+                              <View style={{flex: 1}} />
                               <View
                                 style={[
                                   styles.tag,
                                   {
                                     backgroundColor: 'green',
-                                    marginLeft: 10,
+                                    marginLeft: 5,
+                                    maxWidth: '30%',
+                                    alignSelf: 'flex-end',
                                   },
                                 ]}>
                                 <Text style={styles.tagText}>
@@ -1363,12 +1375,24 @@ const AssetListMainScreen = () => {
                             </View>
 
                             <View style={styles.rowContainer}>
-                              <Text style={styles.categoryText}>
-                                {toTitleCase(item.category)}
+                              <Text
+                                style={[
+                                  styles.categoryText,
+                                  {
+                                    maxWidth: '40%',
+                                  },
+                                ]}>
+                                {toTitleCase(item.classificationName)}
                               </Text>
                               <Text style={styles.separator}> | </Text>
-                              <Text style={styles.classificationText}>
-                                {toTitleCase(item.classificationName)}
+                              <Text
+                                style={[
+                                  styles.classificationText,
+                                  {
+                                    maxWidth: '60%',
+                                  },
+                                ]}>
+                                {toTitleCase(item.custSpec)}
                               </Text>
                             </View>
 

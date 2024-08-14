@@ -184,7 +184,7 @@ const styles = StyleSheet.create({
   },
   headerContainer: {
     flexDirection: 'row',
-    paddingHorizontal: 5,
+    // paddingHorizontal: 5,
   },
   tag: {
     paddingHorizontal: 5,
@@ -192,19 +192,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 2,
     marginBottom: 5,
-    maxWidth: '55%',
+    
     height: 20,
   },
   tagText: {
     fontWeight: 'bold',
     fontSize: 13,
     color: 'white',
+    // maxWidth: '150%',
   },
   rowContainer: {
     flexDirection: 'row',
   },
   categoryText: {
-    maxWidth: '25%',
     fontSize: 14,
     marginRight: 5,
     color: 'black',
@@ -300,7 +300,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'black', // Ensure text color is set
   },
-   closeIconContainer: {
+  closeIconContainer: {
     alignSelf: 'flex-end', // Position it at the top-right corner
     padding: 10,
   },
