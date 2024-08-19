@@ -236,7 +236,9 @@ const AssetListMainScreen = () => {
       updatedCategories = [...tempSelectedStatusCategories, category];
     }
 
+
     setTempSelectedStatusCategories(updatedCategories);
+
 
     // Update "Select All" state based on whether all items are selected
     if (updatedCategories.length === status.length) {
@@ -272,9 +274,11 @@ const AssetListMainScreen = () => {
       'asset main : 876689090hjhjjhj87 subFilteredData : ',
       subFilteredData,
     );
+
     fetchData();
     // setFilteredData([]);
     // setFilteredData(subFilteredData);
+
     setShowSortPopup1(false);
     setCurrentPage(1);
     // criteriaResponse.totalPages = 1;
@@ -322,8 +326,10 @@ const AssetListMainScreen = () => {
     // if(searchData.length>0){
     //   setFilteredData(null)
     // }
+
     // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.assetClassifications)
     // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.includes(assetClassifications))
+
   }, [
     filteredData,
     searchData,
@@ -490,7 +496,10 @@ const AssetListMainScreen = () => {
       const token = credentials.password;
       console.log('Token with bearer:', token);
 
+
       // Fetch data from the API
+
+
       const response = await fetch(`${API_URL}/api/assetList/mainFilters`, {
         method: 'POST',
         headers: {
@@ -501,9 +510,11 @@ const AssetListMainScreen = () => {
           deptName: '',
           locationName: '',
           status: '',
+
           subDeptName: '',
           classificationName: '',
           type: '',
+
           sortBy: sortBy,
         }),
       });
@@ -515,7 +526,7 @@ const AssetListMainScreen = () => {
       const data = await response.json();
       console.log('All data fetched:', data.length);
 
-      // Filter the data based on selected locations, departments, status, and classification names
+
       const filteredData = data.filter(item => {
         const locationMatch =
           selectedLocation.length === 0 ||
@@ -525,6 +536,7 @@ const AssetListMainScreen = () => {
           selectedDepartment.includes(item.deptName);
         const statusMatch =
           selectedStatus.length === 0 || selectedStatus.includes(item.status);
+
         const classificationMatch =
           selectedItemsHistory.assetClassifications.length === 0 ||
           selectedItemsHistory.assetClassifications.includes(
@@ -551,6 +563,7 @@ const AssetListMainScreen = () => {
       setCriteriaResponse(filteredData);
       setPageableData(filteredData.pageable || {}); // Assuming pageable data is the same for all requests
       setFilteredData(filteredData);
+
 
       console.log('Filtered data:', filteredData.slice(0, 9));
     } catch (error) {
@@ -809,6 +822,7 @@ const AssetListMainScreen = () => {
                   onValueChange={
                     () => handleDepCheckboxChange(department) // Function to handle individual checkbox change
                   }
+
                 />
                 <Text style={styles.checkboxLabel}>
                   {department.toUpperCase()}
@@ -871,6 +885,7 @@ const AssetListMainScreen = () => {
                 <Text style={styles.checkboxLabel}>
                   {location.locationName.toUpperCase()}
                 </Text>
+
               </View>
             ))}
 
@@ -914,6 +929,7 @@ const AssetListMainScreen = () => {
               <Text style={styles.checkboxLabel}>SELECT ALL</Text>
             </View>
 
+
             {/* Individual Status Checkboxes */}
             {status.map((statusItem, index) => (
               <View key={index} style={styles.checkboxContainer}>
@@ -941,8 +957,309 @@ const AssetListMainScreen = () => {
           </View>
         </Modal>
 
+
+        <View style={{alignItems: 'center'}}>
+          <View
+            style={{
+              borderRadius: 20,
+              width: '95%',
+              overflow: 'hidden',
+              marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
+            }}>
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Department
+              </Text>
+            </View>
+
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setDepModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {' '}
+                {selectedDepCategories.length > 0
+                  ? selectedDepCategories.join(', ')
+                  : 'All'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{alignItems: 'center'}}>
+          <View
+            style={{
+              borderRadius: 20,
+              width: '95%',
+              overflow: 'hidden',
+              marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
+            }}>
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Location
+              </Text>
+            </View>
+
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {' '}
+                {selectedCategories.length > 0
+                  ? selectedCategories.join(', ')
+                  : 'All'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{alignItems: 'center'}}>
+          <View
+            style={{
+              borderRadius: 20,
+              width: '95%',
+              overflow: 'hidden',
+              marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
+            }}>
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Status
+              </Text>
+            </View>
+
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setStatusModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {selectedStatusCategories.length > 0
+                  ? selectedStatusCategories.join(', ')
+                  : 'All'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Department Filter */}
+        <Modal
+          visible={depModalVisible}
+          animationType="slide"
+          onRequestClose={() => {
+            setTempSelectedDepCategories([...selectedDepCategories]); // Revert changes
+            setDepModalVisible(false);
+          }}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeIconContainer}
+              onPress={() => {
+                setTempSelectedDepCategories([...selectedDepCategories]); // Revert changes
+                setDepModalVisible(false);
+              }}>
+              <Icon name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* "Select All" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleDepSelectAllChange} // Function to handle "Select All" for departments
+              />
+              <Text style={styles.checkboxLabel}>Select All</Text>
+            </View>
+
+            {/* Individual Department Checkboxes */}
+            {departments.map((department, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <CheckBox
+                  value={tempSelectedDepCategories.includes(department)}
+                  onValueChange={
+                    () => handleDepCheckboxChange(department) // Function to handle individual checkbox change
+                  }
+                />
+                <Text style={styles.checkboxLabel}>
+                  {toTitleCase(department)}
+                </Text>
+              </View>
+            ))}
+
+            {/* Apply Filter Button */}
+            <Button
+              title="Apply Filter"
+              onPress={() => {
+                setSelectedDepCategories(tempSelectedDepCategories);
+                setSelectedDepartment(tempSelectedDepCategories);
+                setCurrentPage(1);
+                fetchData();
+                setDepModalVisible(false);
+              }}
+            />
+          </View>
+        </Modal>
+
+        {/* Location Filter */}
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => {
+            setTempSelectedLocCategories([...selectedCategories]); // Revert changes
+            setModalVisible(false); // Close modal on hardware back button
+          }}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeIconContainer}
+              onPress={() => {
+                setTempSelectedLocCategories([...selectedCategories]); // Revert changes
+                setModalVisible(false);
+              }}>
+              <Icon name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* "Select All" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleLocSelectAllChange} // Function to handle "Select All" for locations
+              />
+              <Text style={styles.checkboxLabel}>Select All</Text>
+            </View>
+
+            {/* Individual Location Checkboxes */}
+            {locations.map((location, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <CheckBox
+                  value={tempSelectedLocCategories.includes(
+                    location.locationName,
+                  )}
+                  onValueChange={
+                    () => handleCheckboxChange(location.locationName) // Function to handle individual checkbox change
+                  }
+                />
+                <Text style={styles.checkboxLabel}>
+                  {toTitleCase(location.locationName)}
+                </Text>
+              </View>
+            ))}
+
+            {/* Apply Filter Button */}
+            <Button
+              title="Apply Filter"
+              onPress={() => {
+                setSelectedCategories(tempSelectedLocCategories);
+                setSelectedLocation(tempSelectedLocCategories);
+                setCurrentPage(1);
+                fetchData();
+                setModalVisible(false);
+              }}
+            />
+          </View>
+        </Modal>
+
+        <Modal
+          visible={statusModalVisible}
+          animationType="slide"
+          onRequestClose={() => {
+            setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
+            setStatusModalVisible(false);
+          }}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeIconContainer}
+              onPress={() => {
+                setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
+                setStatusModalVisible(false);
+              }}>
+              <Icon name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* "Select All" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleSelectAllChange}
+              />
+              <Text style={styles.checkboxLabel}>Select All</Text>
+            </View>
+
+            {/* Individual Status Checkboxes */}
+            {status.map((statusItem, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <CheckBox
+                  value={tempSelectedStatusCategories.includes(statusItem)}
+                  onValueChange={() => handleStatusCheckboxChange(statusItem)}
+                />
+                <Text style={styles.checkboxLabel}>
+                  {toTitleCase(statusItem)}
+                </Text>
+              </View>
+            ))}
+
+            {/* Apply Filter Button */}
+            <Button
+              title="Apply Filter"
+              onPress={() => {
+                setSelectedStatusCategories(tempSelectedStatusCategories);
+                setSelectedStatus(tempSelectedStatusCategories);
+                setCurrentPage(1);
+                fetchData();
+                setStatusModalVisible(false);
+              }}
+            />
+          </View>
+        </Modal>
+
         {/* SORT AND FILTER SECTION */}
         <View style={styles.sortAndFilterContainer}>
+          {/* <View
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: 44,
+              // marginVertical:10
+            }}>
+            <Skeleton
+              LinearGradientComponent={LinearGradient}
+              animation="wave"
+              width={'95%'}
+              height={30}
+              style={{ borderRadius: 15 }} />
+          </View> */}
+
           <View style={styles.sortElementContainer}>
             {isLoading ? (
               <View
