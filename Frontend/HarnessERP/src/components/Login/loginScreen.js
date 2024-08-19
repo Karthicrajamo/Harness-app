@@ -20,7 +20,7 @@ import LoadingIndicator from '../commonUtils/LoadingIndicator';
 // import { API_URL } from '@env';
 import API_URL from '../ApiUrl';
 import CustomAlert from '../common-utils/CustomAlert';
-import  { sharedData } from "./UserId"
+import {sharedData} from './UserId';
 
 const LoginScreen = () => {
   const [username, setUsername] = useState('');
@@ -224,7 +224,7 @@ style={styles.backgroundImage}> */}
               </Text>
             </View> */}
             <View style={styles.foot}>
-              <Text style={styles.version}>App Version 1.2.6</Text>
+              <Text style={styles.version}>App Version 1.1.0</Text>
               <Image
                 style={styles.footer}
                 source={require('../../images/Ellipse-1.png')}></Image>
@@ -330,4 +330,3 @@ style={styles.backgroundImage}> */}
 // };
 
 export default LoginScreen;
-

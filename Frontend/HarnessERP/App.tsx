@@ -292,7 +292,7 @@ const App = () => {
           />
           <View>
             <Text></Text>
-            <Text style={{left: 20, fontWeight: 'bold'}}>Ver: 1.2.6</Text>
+            <Text style={{left: 20, fontWeight: 'bold'}}>Ver: 1.1.0</Text>
           </View>
 
           {/* Add more DrawerItem components for other menu items */}

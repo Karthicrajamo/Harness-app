@@ -108,7 +108,11 @@ const AssetListFilter = ({
 
       const data = await response.json();
       setListOfFilterOptionsMap(convertJsonToKeyValuePairArray(data));
+      console.log("list filter-----"+convertJsonToKeyValuePairArray(data))
+      console.log("list filter-----"+data)
+
       setFilterKeys(listOfFilterOptionsMap.map(item => item.title));
+      console.log("list filter mapping_____"+listOfFilterOptionsMap.map(item => item.title))
     } catch (error) {
       console.error('Error fetching status:', error);
     }
@@ -152,6 +156,16 @@ const AssetListFilter = ({
     console.log('filteredDataLocal: ', filteredDataLocal);
     console.log('selectedItems: ', selectedItems);
   };
+  function makeReadable(word) {
+    // Split camelCase or PascalCase string into words
+    const words = word.replace(/([a-z])([A-Z])/g, '$1 $2').split(/(?=[A-Z])/);
+  
+    // Capitalize each word
+    const readableWords = words.map(w => w.charAt(0).toUpperCase() + w.slice(1));
+  
+    // Join words with a space and return the transformed string
+    return readableWords.join(' ');
+  }
 
   return (
     <Modal visible={visible} transparent animationType="slide">
@@ -160,7 +174,8 @@ const AssetListFilter = ({
           <ScrollView>
             {listOfFilterOptionsMap.map((item, index) => (
               <View key={index}>
-                <Text style={styles.filterTitle}>{toTitleCase(item.title)}</Text>
+                <Text style={styles.filterTitle}>{makeReadable(item.title) }</Text>
+                {/* <Text style={styles.filterTitle}>{item.title == "assetClassifications"?"Asset Classification":"hii"}</Text> */}
                 <View style={styles.filterContainer}>
                   {item.data.map((element, idx) => (
                     <TouchableOpacity
@@ -185,12 +200,11 @@ const AssetListFilter = ({
             ))}
             <View style={styles.buttons}>
               <TouchableOpacity
-                style={[styles.button, !isSelectionValid && styles.buttonDisabled]}
+                style={[styles.button]}
                 onPress={() => {
-                  if (isSelectionValid) {
                     handleSubFilter();
                     console.log('Filter Button Clicked');
-                  }
+                  
                 }}>
                 <Text style={styles.buttonText}>Filter</Text>
               </TouchableOpacity>
@@ -222,8 +236,9 @@ const styles = StyleSheet.create({
     maxHeight: '80%',
   },
   filterTitle: {
-    fontWeight: 'bold',
+    fontWeight: '400',
     marginBottom: 8,
+    color:'black'
   },
   filterContainer: {
     flexDirection: 'row',

@@ -192,7 +192,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 2,
     marginBottom: 5,
-    
+
     height: 20,
   },
   tagText: {
@@ -210,7 +210,8 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   separator: {
-    color: 'black',
+    color: 'blue',
+    fontWeight: 'semibold',
   },
   classificationText: {
     fontSize: 12,
@@ -229,7 +230,7 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   subDepartmentText: {
-    maxWidth: '35%',
+    // maxWidth: '35%',
     overflow: 'hidden',
     color: 'black',
     fontSize: 13,
@@ -237,8 +238,8 @@ const styles = StyleSheet.create({
   locationContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    maxWidth: '100%',
-    overflow: 'hidden',
+    // maxWidth: '25%',
+    // overflow: 'hidden',
   },
   locationIcon: {
     marginRight: 5,

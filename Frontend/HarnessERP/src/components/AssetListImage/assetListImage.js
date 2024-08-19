@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   View,
   FlatList,
@@ -10,14 +10,13 @@ import {
   ScrollView,
 } from 'react-native';
 import ImageViewer from 'react-native-image-zoom-viewer';
-import {useNavigation} from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
 import TitleBar from '../common-utils/TitleBar';
-import {CustomThemeColors} from '../CustomThemeColors';
 
-const {width} = Dimensions.get('window');
+const { width } = Dimensions.get('window');
 
-const AssetListImage = ({assetImages, ImageGelleryOnClose}) => {
-  const [selectedImageIndex, setSelectedImageIndex] = useState(null); // State to track selected image index
+const AssetListImage = ({ assetImages, ImageGelleryOnClose }) => {
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const navigation = useNavigation();
 
   const onClose = () => {
@@ -25,34 +24,27 @@ const AssetListImage = ({assetImages, ImageGelleryOnClose}) => {
   };
 
   const handleMenuPress = () => {
-    console.log('Menu');
+    // Check if navigation is correctly working
+    navigation.openDrawer();
+    console.log('Menu button pressed');
   };
 
-  const handleSearchPress = () => {
-    console.log('Search');
+  const openQrScanner = () => {
+    navigation.navigate('QrScanner');
   };
 
-  const handleQrScannerPress = () => {
-    console.log('handleQrScannerPress');
-  };
-
-  const handleRefreshPress = () => {
-    console.log('handleRefreshPress');
-  };
-
-  const renderItem = ({item, index}) => (
-    <View style={{flex: 1}}>
+  const renderItem = ({ item, index }) => (
+    <View style={{ flex: 1 }}>
       <TouchableOpacity onPress={() => setSelectedImageIndex(index)}>
-        <Text style={{textAlign: 'center'}}>{item.imageTitle}</Text>
+        <Text style={{ textAlign: 'center' }}>{item.imageTitle}</Text>
         <Image
-          source={{uri: `data:image/jpeg;base64,${item.image}`}}
+          source={{ uri: `data:image/jpeg;base64,${item.image}` }}
           style={styles.image}
         />
       </TouchableOpacity>
     </View>
   );
 
-  // Format the asset images for ImageViewer
   const formattedImages = assetImages.map(image => ({
     url: `data:image/jpeg;base64,${image.image}`,
     title: image.imageTitle,
@@ -63,20 +55,18 @@ const AssetListImage = ({assetImages, ImageGelleryOnClose}) => {
       animationType="slide"
       transparent={false}
       visible={true}
-      onRequestClose={() => onClose()}>
+      onRequestClose={() => onClose()}
+      style={{zIndex:0}}
+    >
       <ScrollView>
         <View style={styles.container}>
-          <View style={{marginTop: 5, alignItems: 'center'}}>
+          <View style={{ marginTop: 5, alignItems: 'center' }}>
             <TitleBar
-              text="Images"
+              text="Asset Images"
               showMenuBar={true}
               onMenuPress={handleMenuPress}
-              showSearchIcon={true}
-              onSearchPress={handleSearchPress}
               showQrScannerIcon={true}
-              onQrScannerPress={handleQrScannerPress}
-              showRefreshIcon={true}
-              onRefreshPress={handleRefreshPress}
+              onQrScannerPress={openQrScanner}
               showCloseIcon={true}
               onClose={onClose}
             />
@@ -85,16 +75,15 @@ const AssetListImage = ({assetImages, ImageGelleryOnClose}) => {
             data={assetImages}
             renderItem={renderItem}
             keyExtractor={(item, index) => index.toString()}
-            numColumns={3} // Example: Display images in multiple columns
+            numColumns={3}
             contentContainerStyle={styles.flatlistContentContainer}
           />
-
-          {/* Modal to display large image */}
           {selectedImageIndex !== null && (
             <Modal
               visible={true}
               onRequestClose={() => setSelectedImageIndex(null)}
-              transparent>
+              transparent
+            >
               <ImageViewer
                 imageUrls={formattedImages}
                 index={selectedImageIndex}
@@ -103,7 +92,8 @@ const AssetListImage = ({assetImages, ImageGelleryOnClose}) => {
                 renderHeader={() => (
                   <TouchableOpacity
                     style={styles.closeButton}
-                    onPress={() => setSelectedImageIndex(null)}>
+                    onPress={() => setSelectedImageIndex(null)}
+                  >
                     <Text style={styles.closeText}>X</Text>
                   </TouchableOpacity>
                 )}
@@ -134,7 +124,6 @@ const styles = {
     position: 'absolute',
     bottom: 40,
     right: '45%',
-    // left:0,
     zIndex: 1,
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
     borderRadius: 50,
