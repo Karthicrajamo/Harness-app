@@ -236,7 +236,9 @@ const AssetListMainScreen = () => {
       updatedCategories = [...tempSelectedStatusCategories, category];
     }
 
+
     setTempSelectedStatusCategories(updatedCategories);
+
 
     // Update "Select All" state based on whether all items are selected
     if (updatedCategories.length === status.length) {
@@ -272,8 +274,11 @@ const AssetListMainScreen = () => {
       'asset main : 876689090hjhjjhj87 subFilteredData : ',
       subFilteredData,
     );
-    setFilteredData([]);
-    setFilteredData(subFilteredData);
+
+    fetchData();
+    // setFilteredData([]);
+    // setFilteredData(subFilteredData);
+
     setShowSortPopup1(false);
     setCurrentPage(1);
     // criteriaResponse.totalPages = 1;
@@ -321,6 +326,10 @@ const AssetListMainScreen = () => {
     // if(searchData.length>0){
     //   setFilteredData(null)
     // }
+
+    // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.assetClassifications)
+    // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.includes(assetClassifications))
+
   }, [
     filteredData,
     searchData,
@@ -487,7 +496,10 @@ const AssetListMainScreen = () => {
       const token = credentials.password;
       console.log('Token with bearer:', token);
 
-      // Fetch data from the API and filter it in one go
+
+      // Fetch data from the API
+
+
       const response = await fetch(`${API_URL}/api/assetList/mainFilters`, {
         method: 'POST',
         headers: {
@@ -498,6 +510,11 @@ const AssetListMainScreen = () => {
           deptName: '',
           locationName: '',
           status: '',
+
+          subDeptName: '',
+          classificationName: '',
+          type: '',
+
           sortBy: sortBy,
         }),
       });
@@ -509,7 +526,7 @@ const AssetListMainScreen = () => {
       const data = await response.json();
       console.log('All data fetched:', data.length);
 
-      // Filter the data based on selected locations, departments, and status
+
       const filteredData = data.filter(item => {
         const locationMatch =
           selectedLocation.length === 0 ||
@@ -519,20 +536,34 @@ const AssetListMainScreen = () => {
           selectedDepartment.includes(item.deptName);
         const statusMatch =
           selectedStatus.length === 0 || selectedStatus.includes(item.status);
-        return locationMatch && departmentMatch && statusMatch;
+
+        const classificationMatch =
+          selectedItemsHistory.assetClassifications.length === 0 ||
+          selectedItemsHistory.assetClassifications.includes(
+            item.classificationName,
+          );
+        const type =
+          selectedItemsHistory.assetTypes.length === 0 ||
+          selectedItemsHistory.assetTypes.includes(item.type);
+        const subDeptName =
+          selectedItemsHistory.subDepartments.length === 0 ||
+          selectedItemsHistory.subDepartments.includes(item.subDeptName);
+        return (
+          locationMatch &&
+          departmentMatch &&
+          statusMatch &&
+          classificationMatch &&
+          type &&
+          subDeptName
+        );
       });
-      // if(selectedDepartment.length > 0 || selectedLocation.length > 0 || selectedStatus.length > 0)
-      //   setSubFilteredData([])
 
       // Process and update the filtered data
       setSearchData([]);
       setCriteriaResponse(filteredData);
       setPageableData(filteredData.pageable || {}); // Assuming pageable data is the same for all requests
       setFilteredData(filteredData);
-      // if(subFilteredData.length > 0){
-      //   setFilteredData([])
-      //   setFilteredData(subFilteredData)
-      // }
+
 
       console.log('Filtered data:', filteredData.slice(0, 9));
     } catch (error) {
@@ -577,9 +608,9 @@ const AssetListMainScreen = () => {
 
   const handleRefresh = () => {
     // Perform refresh actions here
-    setRefreshing(true); // Show the refresh component
+    // setRefreshing(true); // Show the refresh component
     setTimeout(() => {
-      setRefreshing(false); // Hide the refresh component after some delay or when refresh is complete
+      // setRefreshing(false); // Hide the refresh component after some delay or when refresh is complete
       navigation.replace('AssetListMainScreen');
       // fetchData();
     }, 1000); // Simulating a delay here, replace with actual refresh logic
@@ -639,148 +670,293 @@ const AssetListMainScreen = () => {
           // setSearchData={setSearchData}
         />
 
-        {/* --------------------- Popup List Start For All Three ---------------------------------------------- */}
-        {/* MAIN FILTER SECTION (DEPARTMENT, LOCATION, STATUS) */}
-        {/* <View style={styles.mainFIlterContainer}> */}
-        {/* --------------------- Popup List For Department ---------------------------------------------- */}
+        <View style={{alignItems: 'center'}}>
+          <View
+            style={{
+              borderRadius: 20,
+              width: '95%',
+              overflow: 'hidden',
+              marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
+            }}>
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Department
+              </Text>
+            </View>
 
-        {/* {isLoading ? (
-            <>
-              <View
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 44,
-                  // marginVertical:10
-                }}>
-                <Skeleton
-                  LinearGradientComponent={LinearGradient}
-                  animation="wave"
-                  width={'95%'}
-                  height={30}
-                  style={{borderRadius: 15}}
-                />
-              </View>
-              <View
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 20,
-                  // marginVertical:10
-                }}>
-                <Skeleton
-                  LinearGradientComponent={LinearGradient}
-                  animation="wave"
-                  width={'95%'}
-                  height={30}
-                  style={{borderRadius: 15}}
-                />
-              </View>
-              <View
-                style={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: 44,
-                  // marginVertical:10
-                }}>
-                <Skeleton
-                  LinearGradientComponent={LinearGradient}
-                  animation="wave"
-                  width={'95%'}
-                  height={30}
-                  style={{borderRadius: 15}}
-                />
-              </View>
-            </> */}
-        {/* ) : (
-            <View style={styles.mainFIlterElementContainer}>
-              <View style={styles.mainFIlterElementTitleContainer}>
-                <Text style={styles.mainFIlterElementTitle}>Department</Text>
-              </View>
-              <View style={styles.mainFIlterElementPickerContainer}>
-                <Picker
-                  style={{color: 'black'}}
-                  selectedValue={selectedDepartment}
-                  onValueChange={selectedValue => {
-                    setSelectedDepartment(selectedValue);
-                    jumpToFirstPage();
-                    console.log('selectedValue 009', selectedValue);
-                  }}
-                  // itemStyle={styles.pickerItem} // Example of itemStyle
-                >
-                  <Picker.Item label="All" value="" />
-                  {departments.map((dept, index) => (
-                    <Picker.Item
-                      key={index.toString()}
-                      label={dept.toUpperCase()}
-                      value={dept}
-                    />
-                  ))}
-                </Picker>
-              </View>
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setDepModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {' '}
+                {selectedDepCategories.length > 0
+                  ? selectedDepCategories.join(', ').toUpperCase()
+                  : 'ALL'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{alignItems: 'center'}}>
+          <View
+            style={{
+              borderRadius: 20,
+              width: '95%',
+              overflow: 'hidden',
+              marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
+            }}>
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Location
+              </Text>
             </View>
-          )} */}
 
-        {/* {!isLoading && (
-            <View style={styles.mainFIlterElementContainer}>
-              <View style={styles.mainFIlterElementTitleContainer}>
-                <Text style={styles.mainFIlterElementTitle}>Location</Text>
-              </View>
-              <View style={styles.mainFIlterElementPickerContainer}>
-                <Picker
-                  style={{color: 'black'}}
-                  selectedValue={selectedLocation}
-                  onValueChange={selectedValue => {
-                    setSelectedLocation(selectedValue);
-                    jumpToFirstPage();
-                  }}>
-                  <Picker.Item label="All" value="" />
-                  {locations.map(loc => (
-                    <Picker.Item
-                      key={loc.locationId}
-                      label={loc.locationName.toUpperCase()}
-                      value={loc.locationName}
-                    />
-                  ))}
-                </Picker>
-              </View>
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {' '}
+                {selectedCategories.length > 0
+                  ? selectedCategories.join(', ').toUpperCase()
+                  : 'ALL'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+        <View style={{alignItems: 'center'}}>
+          <View
+            style={{
+              borderRadius: 20,
+              width: '95%',
+              overflow: 'hidden',
+              marginTop: 5,
+              marginBottom: 5,
+              flexDirection: 'row',
+              borderWidth: 1,
+            }}>
+            {/* Left side (blue) */}
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: CustomThemeColors.primary,
+                padding: 10,
+              }}>
+              <Text style={{fontSize: 16, fontWeight: 'bold', color: 'white'}}>
+                Status
+              </Text>
             </View>
-          )}
-          {!isLoading && (
-            <View style={styles.mainFIlterElementContainer}>
-              <View style={styles.mainFIlterElementTitleContainer}>
-                <Text style={styles.mainFIlterElementTitle}>Status</Text>
-              </View>
-              <View style={styles.mainFIlterElementPickerContainer}>
-                <Picker
-                  style={{color: 'black'}}
-                  selectedValue={selectedStatus}
-                  onValueChange={selectedValue => {
-                    setSelectedStatus(selectedValue);
-                    jumpToFirstPage();
-                  }}>
-                  <Picker.Item label="All" value="" />
-                  {status
-                    .filter(
-                      Stat =>
-                        !['DELETED', 'INCOMPLETE'].includes(Stat.toUpperCase()),
-                    )
-                    .map((Stat, index) => (
-                      <Picker.Item
-                        key={index.toString()}
-                        label={Stat.toUpperCase()}
-                        value={Stat}
-                      />
-                    ))}
-                </Picker>
-              </View>
+
+            {/* Right side (white) */}
+            <TouchableOpacity
+              style={{flex: 1, backgroundColor: 'white', padding: 10}}
+              onPress={() => setStatusModalVisible(true)}>
+              <Text
+                style={{textAlign: 'right', color: 'black'}}
+                numberOfLines={1}
+                ellipsizeMode="tail">
+                {selectedStatusCategories.length > 0
+                  ? selectedStatusCategories.join(', ').toUpperCase()
+                  : 'ALL'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Department Filter */}
+        <Modal
+          visible={depModalVisible}
+          animationType="slide"
+          onRequestClose={() => {
+            setTempSelectedDepCategories([...selectedDepCategories]); // Revert changes
+            setDepModalVisible(false);
+          }}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeIconContainer}
+              onPress={() => {
+                setTempSelectedDepCategories([...selectedDepCategories]); // Revert changes
+                setDepModalVisible(false);
+              }}>
+              <Icon name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* "Select All" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleDepSelectAllChange} // Function to handle "Select All" for departments
+              />
+              <Text style={styles.checkboxLabel}>SELECT ALL</Text>
             </View>
-          )}*/}
-        {/* </View>  */}
-        {/* --------------------- Popup List End For All Three ---------------------------------------------- */}
+
+            {/* Individual Department Checkboxes */}
+            {departments.map((department, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <CheckBox
+                  value={tempSelectedDepCategories.includes(department)}
+                  onValueChange={
+                    () => handleDepCheckboxChange(department) // Function to handle individual checkbox change
+                  }
+
+                />
+                <Text style={styles.checkboxLabel}>
+                  {department.toUpperCase()}
+                </Text>
+              </View>
+            ))}
+
+            {/* Apply Filter Button */}
+            <Button
+              title="Apply Filter"
+              onPress={() => {
+                setSelectedDepCategories(tempSelectedDepCategories);
+                setSelectedDepartment(tempSelectedDepCategories);
+                setCurrentPage(1);
+                fetchData();
+                setDepModalVisible(false);
+              }}
+            />
+          </View>
+        </Modal>
+
+        {/* Location Filter */}
+        <Modal
+          visible={modalVisible}
+          animationType="slide"
+          onRequestClose={() => {
+            setTempSelectedLocCategories([...selectedCategories]); // Revert changes
+            setModalVisible(false); // Close modal on hardware back button
+          }}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeIconContainer}
+              onPress={() => {
+                setTempSelectedLocCategories([...selectedCategories]); // Revert changes
+                setModalVisible(false);
+              }}>
+              <Icon name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* "SELECT ALL" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleLocSelectAllChange} // Function to handle "SELECT ALL" for locations
+              />
+              <Text style={styles.checkboxLabel}>SELECT ALL</Text>
+            </View>
+
+            {/* Individual Location Checkboxes */}
+            {locations.map((location, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <CheckBox
+                  value={tempSelectedLocCategories.includes(
+                    location.locationName,
+                  )}
+                  onValueChange={
+                    () => handleCheckboxChange(location.locationName) // Function to handle individual checkbox change
+                  }
+                />
+                <Text style={styles.checkboxLabel}>
+                  {location.locationName.toUpperCase()}
+                </Text>
+
+              </View>
+            ))}
+
+            {/* Apply Filter Button */}
+            <Button
+              title="Apply Filter"
+              onPress={() => {
+                setSelectedCategories(tempSelectedLocCategories);
+                setSelectedLocation(tempSelectedLocCategories);
+                setCurrentPage(1);
+                fetchData();
+                setModalVisible(false);
+              }}
+            />
+          </View>
+        </Modal>
+
+        <Modal
+          visible={statusModalVisible}
+          animationType="slide"
+          onRequestClose={() => {
+            setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
+            setStatusModalVisible(false);
+          }}>
+          <View style={styles.modalContainer}>
+            <TouchableOpacity
+              style={styles.closeIconContainer}
+              onPress={() => {
+                setTempSelectedStatusCategories([...selectedStatusCategories]); // Revert changes
+                setStatusModalVisible(false);
+              }}>
+              <Icon name="close" size={24} color="#000" />
+            </TouchableOpacity>
+
+            {/* "SELECT ALL" Checkbox */}
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={selectAll}
+                onValueChange={handleSelectAllChange}
+              />
+              <Text style={styles.checkboxLabel}>SELECT ALL</Text>
+            </View>
+
+
+            {/* Individual Status Checkboxes */}
+            {status.map((statusItem, index) => (
+              <View key={index} style={styles.checkboxContainer}>
+                <CheckBox
+                  value={tempSelectedStatusCategories.includes(statusItem)}
+                  onValueChange={() => handleStatusCheckboxChange(statusItem)}
+                />
+                <Text style={styles.checkboxLabel}>
+                  {statusItem.toUpperCase()}
+                </Text>
+              </View>
+            ))}
+
+            {/* Apply Filter Button */}
+            <Button
+              title="Apply Filter"
+              onPress={() => {
+                setSelectedStatusCategories(tempSelectedStatusCategories);
+                setSelectedStatus(tempSelectedStatusCategories);
+                setCurrentPage(1);
+                fetchData();
+                setStatusModalVisible(false);
+              }}
+            />
+          </View>
+        </Modal>
+
 
         <View style={{alignItems: 'center'}}>
           <View
@@ -1398,14 +1574,24 @@ const AssetListMainScreen = () => {
 
                             <View style={styles.rowContainer}>
                               <Text style={styles.boldText}>Departments:</Text>
-                              <Text style={styles.departmentText}>
+                              <Text
+                                style={[
+                                  styles.departmentText,
+                                  {
+                                    maxWidth: '65%',
+                                  },
+                                ]}>
                                 {toTitleCase(item.deptName)}
                               </Text>
                               <Text style={styles.separator}> | </Text>
-                              <Text style={styles.subDepartmentText}>
-                                {item.subDeptName
-                                  ? toTitleCase(item.subDeptName)
-                                  : item.subDeptName}
+                              <Text
+                                style={[
+                                  styles.subDepartmentText,
+                                  {
+                                    maxWidth: '35%',
+                                  },
+                                ]}>
+                                {toTitleCase(item.subDeptName)}
                               </Text>
                             </View>
 
@@ -1416,19 +1602,43 @@ const AssetListMainScreen = () => {
                                 color={CustomThemeColors.primary}
                                 style={styles.locationIcon}
                               />
-                              <Text style={styles.locationText}>
+                              <Text
+                                style={[
+                                  styles.locationText,
+                                  {
+                                    maxWidth: '34%',
+                                  },
+                                ]}>
                                 {toTitleCase(item.locationName)}
                               </Text>
                               <Text style={styles.separator}> | </Text>
-                              <Text style={styles.locationText}>
+                              <Text
+                                style={[
+                                  styles.locationText,
+                                  {
+                                    maxWidth: '22%',
+                                  },
+                                ]}>
                                 {toTitleCase(item.subLocation3)}
                               </Text>
                               <Text style={styles.separator}> | </Text>
-                              <Text style={styles.locationText}>
+                              <Text
+                                style={[
+                                  styles.locationText,
+                                  {
+                                    maxWidth: '22%',
+                                  },
+                                ]}>
                                 {toTitleCase(item.subLocation2)}
                               </Text>
                               <Text style={styles.separator}> | </Text>
-                              <Text style={styles.locationText}>
+                              <Text
+                                style={[
+                                  styles.locationText,
+                                  {
+                                    maxWidth: '22%',
+                                  },
+                                ]}>
                                 {toTitleCase(item.subLocation1)}
                               </Text>
                             </View>
