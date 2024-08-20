@@ -331,11 +331,11 @@ const App = () => {
                 component={IssueGroups}
                 options={{headerShown: false}}
               /> */}
-              {/* <Stack.Screen
+              <Stack.Screen
                 name="TestScreen"
                 component={TestScreen}
                 options={{headerShown: false}}
-              /> */}
+              />
               {/* <Stack.Screen
                 name="TableComponent"
                 component={TableComponent}

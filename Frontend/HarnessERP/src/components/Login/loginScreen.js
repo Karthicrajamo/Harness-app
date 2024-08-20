@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import {
   View,
   TextInput,
@@ -18,7 +18,7 @@ import styles from './loginScreenStyles';
 import * as Keychain from 'react-native-keychain';
 import LoadingIndicator from '../commonUtils/LoadingIndicator';
 // import { API_URL } from '@env';
-import API_URL from '../ApiUrl';
+import {fetchApiUrl,API_URL} from '../ApiUrl';
 import CustomAlert from '../common-utils/CustomAlert';
 import {sharedData} from './UserId';
 
@@ -31,6 +31,12 @@ const LoginScreen = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isAlertVisible, setIsAlertVisible] = useState(false);
   const [isAlertValidVisible, setIsAlertValidVisible] = useState(false);
+
+  useEffect(() => {
+    fetchApiUrl().then((url) => {
+      console.log('Fetched API URL:', url);
+    });
+  }, []);
 
   const handleAlert = () => {
     // console.log('Showing Alert');

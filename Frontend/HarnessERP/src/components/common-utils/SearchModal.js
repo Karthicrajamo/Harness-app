@@ -14,7 +14,7 @@ import {CustomThemeColors} from '../CustomThemeColors';
 import {FlatList} from 'react-native-gesture-handler';
 import * as Keychain from 'react-native-keychain';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import API_URL from '../ApiUrl';
+import {API_URL} from '../ApiUrl';
 import {useNavigation, useRoute} from '@react-navigation/native';
 
 const SearchModal = ({visible, onClose, onSearch}) => {
