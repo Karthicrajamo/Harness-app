@@ -7,7 +7,7 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native';
-import API_URL from '../ApiUrl';
+import {API_URL} from '../ApiUrl';
 import * as Keychain from 'react-native-keychain';
 import {CustomThemeColors} from '../CustomThemeColors';
 

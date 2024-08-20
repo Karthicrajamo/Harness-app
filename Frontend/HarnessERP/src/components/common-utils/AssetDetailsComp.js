@@ -11,7 +11,7 @@ import {
 import TitleBar from './TitleBar';
 import {CustomThemeColors} from '../CustomThemeColors';
 import Icon from 'react-native-vector-icons/Ionicons'; // You can choose any icon set
-import API_URL from '../ApiUrl';
+import {API_URL} from '../ApiUrl';
 
 const {width} = Dimensions.get('window');
 

@@ -21,7 +21,7 @@ import Pinchable from 'react-native-pinchable'; // Assuming correct component na
 import {CustomThemeColors} from '../CustomThemeColors';
 import TitleBar from '../common-utils/TitleBar';
 import Icon from 'react-native-vector-icons/Ionicons';
-import API_URL from '../ApiUrl';
+import {API_URL} from '../ApiUrl';
 import AssetListDetailsSkeleton from './AssetListDetailsSkeleton';
 
 const {width} = Dimensions.get('window');

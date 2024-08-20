@@ -26,7 +26,7 @@ import AssetListSort from '../AssetListSort/assetListSort';
 import AssetListFilter from '../AssetListFilter/assetListFilter';
 
 import * as Keychain from 'react-native-keychain';
-import API_URL from '../ApiUrl';
+import {API_URL} from '../ApiUrl';
 import {CustomThemeColors} from '../CustomThemeColors';
 import {
   widthPercentageToDP as wp,

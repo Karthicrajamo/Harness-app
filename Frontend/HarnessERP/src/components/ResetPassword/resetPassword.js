@@ -13,7 +13,7 @@ import {useNavigation} from '@react-navigation/native';
 import styles from './resetPasswordStyles';
 import {getGenericPassword} from 'react-native-keychain';
 import CustomAlert from '../common-utils/CustomAlert';
-import API_URL from '../ApiUrl';
+import {API_URL} from '../ApiUrl';
 import * as Keychain from 'react-native-keychain';
 // import Alert from '@mui/material/Alert';
 
