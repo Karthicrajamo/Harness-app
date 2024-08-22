@@ -31,10 +31,10 @@ const AssetListSort = ({
 
           <TouchableOpacity
             style={styles.option}
-            onPress={() => handleOptionSelect('acquisitionDateNewestFirst')}>
+            onPress={() => handleOptionSelect('assetIdNewestFirst')}>
             <Text style={styles.title}>Newest First</Text>
             <View style={styles.radioButton}>
-              {selectedOption === 'acquisitionDateNewestFirst' && (
+              {selectedOption === 'assetIdNewestFirst' && (
                 <View style={styles.radioButtonInner} />
               )}
             </View>
@@ -53,25 +53,25 @@ const AssetListSort = ({
 
           <TouchableOpacity
             style={styles.option}
-            onPress={() => handleOptionSelect('valueLowToHigh')}>
-            <Text style={styles.title}>Value: Low to High</Text>
+            onPress={() => handleOptionSelect('bookValueLowToHigh')}>
+            <Text style={styles.title}>Book Value: Low to High</Text>
             <View style={styles.radioButton}>
-              {selectedOption === 'valueLowToHigh' && (
+              {selectedOption === 'bookValueLowToHigh' && (
                 <View style={styles.radioButtonInner} />
               )}
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity
+          {/* <TouchableOpacity
             style={styles.option}
-            onPress={() => handleOptionSelect('valueHighToLow')}>
-            <Text style={styles.title}>Value: High to Low</Text>
+            onPress={() => handleOptionSelect('bookValueHighToLow')}>
+            <Text style={styles.title}>Book Value: High to Low</Text>
             <View style={styles.radioButton}>
-              {selectedOption === 'valueHighToLow' && (
+              {selectedOption === 'bookValueHighToLow' && (
                 <View style={styles.radioButtonInner} />
               )}
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
 
           <View style={styles.buttons}>
             {selectedOption && (

@@ -23,6 +23,7 @@ import TitleBar from '../common-utils/TitleBar';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {API_URL} from '../ApiUrl';
 import AssetListDetailsSkeleton from './AssetListDetailsSkeleton';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 const {width} = Dimensions.get('window');
 
@@ -30,14 +31,6 @@ function AssetListDetails(props) {
   const [isActiveFoot, setIsActiveFoot] = useState(1);
 
   const navigation = useNavigation();
-
-  const handleClose = () => {
-    navigation.navigate('AssetListMainScreen');
-  };
-
-  const handleMenuPress = () => {
-    console.log('Menu');
-  };
 
   //   ----------------------------------------------------------
   const route = useRoute();
@@ -129,6 +122,7 @@ function AssetListDetails(props) {
   );
 
   const [assetImagesData, setAssetImagesData] = useState([]);
+  console.log('image size' + assetImagesData.length);
 
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
@@ -184,28 +178,73 @@ function AssetListDetails(props) {
   //   }
   //   return btoa(binary);
   // };
+
+  const [modalVisible, setModalVisible] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [selectedImageModal, setSelectedImageModal] = useState(false);
+
+  
+  const openModal = index => {
+    setSelectedImageIndex(index); // Set the index of the selected image
+  };
+  
+  // Function to close the modal
+  const modelClose = () => {
+    console.log("set null::::"+selectedImageIndex)
+    setSelectedImageIndex(null); // Set index to null to close the modal
+  };
+  
   const renderImage = () => {
     if (assetImagesData.length > 0) {
-      const imageData = assetImagesData[currentImageIndex];
-      const base64String = imageData.image;
-      const base64Image = `data:image/jpeg;base64,${base64String}`;
       return (
         <View style={styles.imgContainer}>
-          <Image source={{uri: base64Image}} style={styles.image} />
+          <FlatList
+            data={assetImagesData}
+            renderItem={({ item, index }) => {
+              const base64Image = `data:image/jpeg;base64,${item.image}`;
+              return (
+                <TouchableOpacity onPress={() => openModal(index)}>
+                  <Image source={{ uri: base64Image }} style={styles.image} />
+                </TouchableOpacity>
+              );
+            }}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+          />
+          <View style={styles.textContainer}>
+            <Text style={styles.imagenumber}>{assetImagesData.length}</Text>
+          </View>
         </View>
       );
     }
+
     return (
       <View style={styles.imgContainer}>
         <Image
           source={require('../../images/Component1.png')}
-          style={styles.image}
+          style={[styles.image, { objectFit: 'contain' }]}
         />
       </View>
     );
   };
+  const formattedImages = assetImagesData.map(item => ({
+    url: `data:image/jpeg;base64,${item.image}`,
+  }));
 
+  const renderFullImage = ({item}) => {
+    const base64Image = `data:image/jpeg;base64,${item.image}`;
+    return (
+      <View style={styles.fullImageContainer}>
+        <Image source={{uri: base64Image}} style={styles.fullImage} />
+      </View>
+    );
+  };
+  
   // ----------------------------------------------------------------------------------------------------
+  useEffect(() => {}, [selectedImageIndex]);
   // Fetch data for sub details Label Top
 
   useEffect(() => {
@@ -307,16 +346,39 @@ function AssetListDetails(props) {
               showCloseIcon={true}
               onClose={handleAssetMainScreen}
             />
-            <TouchableOpacity onPress={() => setShowImageList(true)}>
-              {renderImage()}
-            </TouchableOpacity>
+            {/* <TouchableOpacity onPress={() => setShowImageList(true)}> */}
+            {renderImage()}
+
+            {selectedImageIndex !== null && (
+              <Modal visible={true} onRequestClose={modelClose} transparent>
+                <ImageViewer
+                  imageUrls={formattedImages}
+                  index={selectedImageIndex}
+                  onCancel={modelClose}
+                  enableSwipeDown={true}
+                  onSwipeDown={modelClose} // Close the modal when swiped down
+                  renderHeader={() => (
+                    <TouchableOpacity
+                      style={styles.closeButton}
+                      onPress={()=>{modelClose();console.log("dfsdfsdfsdsd")}} // Close the modal when the "X" is pressed
+                    >
+                      <Text style={styles.closeText}>X</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </Modal>
+            )}
+            {/* </TouchableOpacity> */}
+
             {showImageList && (
-              <AssetListImage
-                assetImages={assetImagesData}
-                ImageGelleryOnClose={() => {
-                  setShowImageList(false);
-                }}
-              />
+              <>
+                <AssetListImage
+                  assetImages={assetImagesData}
+                  ImageGelleryOnClose={() => {
+                    setShowImageList(false);
+                  }}
+                />
+              </>
             )}
             {/* <Text style={styles.headText}> */}
             {/* <View style={styles.textContainer1}> */}
@@ -378,7 +440,7 @@ function AssetListDetails(props) {
                 <Text
                   style={{
                     fontWeight: 'bold',
-                    // backgroundColor: 'yellow',
+                    marginRight: width > 600 ? 35 : 0,
                     color: 'green',
                   }}>
                   {assetItem.ownerShip}
@@ -391,19 +453,27 @@ function AssetListDetails(props) {
             <View style={styles.textContainer}>
               <View
                 style={[
-                  {flexDirection: 'row', justifyContent: 'space-between'},
+                  {
+                    flexDirection: 'row',
+                    justifyContent:
+                      width > 600 ? 'flex-start' : 'space-between',
+                  },
                 ]}>
                 <Text style={[styles.boldText, styles.bodyHeaderText]}>
-                  Type:
+                  Type:{width > 600 && '                    '}
                 </Text>
                 <Text style={[styles.bodyText]}>{assetItem.type}</Text>
               </View>
               <View
                 style={[
-                  {flexDirection: 'row', justifyContent: 'space-between'},
+                  {
+                    flexDirection: 'row',
+                    justifyContent:
+                      width > 600 ? 'flex-start' : 'space-between',
+                  },
                 ]}>
                 <Text style={[styles.boldText, styles.bodyHeaderText]}>
-                  Class:{' '}
+                  Class:{width > 600 && '                   '}
                 </Text>
                 <Text style={[styles.bodyText]}>
                   {assetItem.classificationName}
@@ -411,10 +481,14 @@ function AssetListDetails(props) {
               </View>
               <View
                 style={[
-                  {flexDirection: 'row', justifyContent: 'space-between'},
+                  {
+                    flexDirection: 'row',
+                    justifyContent:
+                      width > 600 ? 'flex-start' : 'space-between',
+                  },
                 ]}>
                 <Text style={[styles.boldText, styles.bodyHeaderText]}>
-                  Asset No:{' '}
+                  Asset No:{width > 600 && '            '}
                 </Text>
                 <Text style={[styles.bodyText]}>{assetItem.assetId}</Text>
               </View>
@@ -429,19 +503,27 @@ function AssetListDetails(props) {
               </View> */}
               <View
                 style={[
-                  {flexDirection: 'row', justifyContent: 'space-between'},
+                  {
+                    flexDirection: 'row',
+                    justifyContent:
+                      width > 600 ? 'flex-start' : 'space-between',
+                  },
                 ]}>
                 <Text style={[styles.boldText, styles.bodyHeaderText]}>
-                  Location:{' '}
+                  Location:{width > 600 && '            '}
                 </Text>
                 <Text style={[styles.bodyText]}>{assetItem.locationName}</Text>
               </View>
               <View
                 style={[
-                  {flexDirection: 'row', justifyContent: 'space-between'},
+                  {
+                    flexDirection: 'row',
+                    justifyContent:
+                      width > 600 ? 'flex-start' : 'space-between',
+                  },
                 ]}>
                 <Text style={[styles.boldText, styles.bodyHeaderText]}>
-                  Sub-Location:{' '}
+                  Sub-Location:{width > 600 && '  '}
                 </Text>
                 <Text style={[styles.bodyText]}>
                   {assetItem.subLocation3} | {assetItem.subLocation2} |{' '}
@@ -450,10 +532,14 @@ function AssetListDetails(props) {
               </View>
               <View
                 style={[
-                  {flexDirection: 'row', justifyContent: 'space-between'},
+                  {
+                    flexDirection: 'row',
+                    justifyContent:
+                      width > 600 ? 'flex-start' : 'space-between',
+                  },
                 ]}>
                 <Text style={[styles.boldText, styles.bodyHeaderText]}>
-                  Spec:{' '}
+                  Spec:{width > 600 && '                    '}
                 </Text>
                 <Text style={[styles.bodyText]}>{assetItem.custSpec}</Text>
               </View>
@@ -559,10 +645,12 @@ function AssetListDetails(props) {
                           assetItem.purchaseVal.toString().trim() === ''
                             ? styles.defaultText
                             : null,
+                          {color: 'blue'},
                         ]}>
                         {assetItem.purchaseVal &&
                         assetItem.purchaseVal.toString().trim() !== ''
-                          ? `${assetItem.purchaseVal} %`
+                          ? // ? `${assetItem.purchaseVal} %`
+                            `-`
                           : '-'}
                       </Text>
                     </View>
@@ -658,11 +746,13 @@ function AssetListDetails(props) {
                           assetItem.purchaseVal.toString().trim() === ''
                             ? styles.defaultText
                             : null,
+                          {color: 'blue'},
                         ]}>
                         {assetItem.purchaseVal &&
                         assetItem.purchaseVal.toString().trim() !== ''
-                          ? assetItem.purchaseVal
-                          : '-'}
+                          ? '-'
+                          : // ? assetItem.purchaseVal
+                            '-'}
                       </Text>
                     </View>
                     <View>
@@ -845,12 +935,10 @@ function AssetListDetails(props) {
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1.2,
     alignItems: 'center',
     marginBottom: 10,
   },
   imgContainer: {
-    // flex:1,
     marginVertical: width < 600 ? 10 : 30,
     marginBottom: 15,
     backgroundColor: 'white',
@@ -872,23 +960,23 @@ const styles = StyleSheet.create({
   },
   imgCont: {
     borderRadius: 10,
-    objectFit: 'contain',
-    // height: 150,
+    width: '100%',
+    height: undefined,
+    aspectRatio: 1, // Maintains aspect ratio
   },
   image: {
-    objectFit: 'contain',
-    width: width > 600 ? 600 : 340,
+    width: width > 600 ? 700 : 340,
     height: width > 600 ? 400 : 170,
   },
   textContainer: {
     width: '100%',
     paddingHorizontal: 16,
-    // flexDirection: 'row',
-    justifyContent: 'space-between',
+    marginTop: 5,
   },
   textContainer1: {
     width: '100%',
     paddingHorizontal: 16,
+    flexDirection: 'row',
     justifyContent: 'space-between',
   },
   headText: {
@@ -899,18 +987,16 @@ const styles = StyleSheet.create({
   },
   bodyText: {
     color: 'black',
-    textAlign: 'left',
-    marginRight: 5,
+    // marginLeft: 290, // Adjusted to be more consistent
+    marginLeft: width > 600 ? 290 : 200,
   },
   boldText: {
     fontWeight: 'bold',
   },
   footerContainer: {
-    // flex: 1,
     backgroundColor: '#F0F2F5',
     borderRadius: 15,
     width: '95%',
-    height: 'auto',
     alignSelf: 'center',
     ...Platform.select({
       ios: {
@@ -943,7 +1029,6 @@ const styles = StyleSheet.create({
   activeText: {
     color: CustomThemeColors.primary,
     fontSize: 16,
-    marginBottom: 0,
   },
   activeTab: {
     borderBottomWidth: 1,
@@ -958,7 +1043,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
     width: '50%',
-    // marginHorizontal: 30
   },
   flexiFieldContainer: {
     flexDirection: 'row',
@@ -967,7 +1051,6 @@ const styles = StyleSheet.create({
   },
   flexiFieldColumn: {
     flex: 1,
-    paddingHorizontal: 0,
   },
   flexiFieldRow: {
     flexDirection: 'row',
@@ -976,7 +1059,7 @@ const styles = StyleSheet.create({
   },
   footDetailsHeadText: {
     color: 'grey',
-    fontWeight: 'light',
+    fontWeight: '300', // Use '300' for light weight if available
     marginBottom: 3,
   },
   bottomBorder: {
@@ -992,6 +1075,75 @@ const styles = StyleSheet.create({
   },
   defaultText: {
     color: 'blue', // Default text color is blue
+  },
+  imagenumber: {
+    color: 'blue',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  image: {
+    width: 300,
+    height: 200,
+    marginHorizontal: 5,
+    resizeMode: 'cover',
+    borderRadius: 8,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullImageContainer: {
+    width: width,
+    height: 400,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullImage: {
+    width: '100%',
+    height: '80%',
+    resizeMode: 'contain',
+  },
+  closeButton: {
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: 'rgba(255, 255, 255, 0.7)',
+    padding: 10,
+    borderRadius: 5,
+    zIndex:10
+  },
+  closeButtonText: {
+    color: '#000',
+    fontSize: 16,
+  },
+  // textContainer: {
+  //   position: 'absolute',
+  //   bottom: 10,
+  //   right: 10,
+  //   backgroundColor: 'rgba(0,0,0,0.5)',
+  //   padding: 5,
+  //   borderRadius: 5,
+  // },
+  imagenumber: {
+    color: 'white',
+    fontSize: 16,
+  },
+  closeButton: {
+    position: 'absolute',
+    bottom: 40,
+    right: '45%',
+    zIndex: 1,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 50,
+    padding: 10,
+    paddingHorizontal: 20,
+  },
+  closeText: {
+    color: 'white',
+    fontSize: 18,
+    fontWeight: 'bold',
   },
 });
 

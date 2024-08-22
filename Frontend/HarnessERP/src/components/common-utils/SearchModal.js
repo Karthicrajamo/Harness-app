@@ -9,6 +9,7 @@ import {
   StyleSheet,
   Animated,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import {CustomThemeColors} from '../CustomThemeColors';
 import {FlatList} from 'react-native-gesture-handler';
@@ -17,7 +18,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import {API_URL} from '../ApiUrl';
 import {useNavigation, useRoute} from '@react-navigation/native';
 
-const SearchModal = ({visible, onClose, onSearch}) => {
+const SearchModal = ({visible, onClose, onSearch, isLoading, setIsLoading}) => {
   const [searchables, setSearchables] = useState([]);
 
   const route = useRoute();
@@ -141,13 +142,13 @@ const SearchModal = ({visible, onClose, onSearch}) => {
         throw new Error('Token is empty');
       }
 
-      console.log('Token for search list:', token);
-      console.log('Token for search list:', isMatchId);
+      // console.log('Token for search list:', token);
+      // console.log('Token for search list:', isMatchId);
       const batchSize = 100; // Define your preferred batch size
 
       for (let i = 0; i < isMatchId.length; i += batchSize) {
         const batchIds = isMatchId.slice(i, i + batchSize);
-        console.log('Token for search list batchIds:', batchIds);
+        // console.log('Token for search list batchIds:', batchIds);
 
         const response = await fetch(`${API_URL}/api/assetList/searchResult`, {
           method: 'POST',
@@ -172,10 +173,10 @@ const SearchModal = ({visible, onClose, onSearch}) => {
           return;
         }
         const data = await response.json();
-        console.log('Response Data:', data);
+        // console.log('Response Data:', data);
         batches.push(data);
       }
-      console.log('DataResult :', batches);
+      // console.log('DataResult :', batches);
       const dataaa = batches
         .flat()
         .filter(item => item && Object.keys(item).length > 0);
@@ -185,11 +186,11 @@ const SearchModal = ({visible, onClose, onSearch}) => {
     }
   };
 
-  useEffect(() => {
-    if (isMatchId.length > 0) {
-      fetchSearchList();
-    }
-  }, [isMatchId]);
+  // useEffect(() => {
+  //   if (isMatchId.length > 0) {
+  //     fetchSearchList();
+  //   }
+  // }, [isMatchId]);
 
   useEffect(() => {
     if (searchQuery.length > 0) {
@@ -199,8 +200,10 @@ const SearchModal = ({visible, onClose, onSearch}) => {
     }
   }, [searchQuery]);
 
-  const handleSearchComplete = () => {
-    fetchSuggestions();
+  const handleSearchComplete = async () => {
+    setIsLoading(true); // Show loading indicator
+    await fetchSearchList(); // Wait for search list fetch
+    setIsLoading(false); // Hide loading indicator
     onClose();
   };
 
@@ -263,67 +266,75 @@ const SearchModal = ({visible, onClose, onSearch}) => {
             />
             <TouchableOpacity
               style={styles.searchButton}
-              onPress={handleSearchComplete}>
+              onPress={handleSearchComplete}
+              disabled={isLoading} // Disable the button when loading
+            >
               <MaterialIcons
                 name="search"
                 size={23}
                 color="#000"
-                style={{opacity: 0.5}}
+                style={{opacity: isLoading ? 0.2 : 0.5}} // Adjust opacity based on loading state
               />
             </TouchableOpacity>
           </View>
-          <View
-            style={{
-              marginTop: 5,
-              width: '100%',
-            }}>
-            <Text
-              style={{
-                textAlign: 'left',
-                color: 'grey',
-                fontWeight: 'bold',
-                fontSize: 15,
-              }}>
-              {searchQuery
-                ? suggestions.length > 0
-                  ? 'Suggested'
-                  : 'No Suggestions'
-                : 'Recent Searches'}
-            </Text>
-          </View>
-          <View style={styles.searchableContainer}>
-            <FlatList
-              data={searchQuery ? suggestions : searchables}
-              keyExtractor={(item, index) => `${index}-${item}`}
-              renderItem={({item, index}) => (
-                <TouchableOpacity
-                  onPress={() => {
-                    setHighlightSelection(index);
-                    setSearchQuery(item);
-                  }}>
-                  <View style={styles.searchableSubContainer}>
-                    <View style={{marginHorizontal: 10}}>
-                      <MaterialIcons
-                        name={searchQuery ? 'search' : 'youtube-searched-for'}
-                        size={20}
-                        style={{color: 'lightgrey'}}
-                      />
-                    </View>
-                    <View>
-                      <Text
-                        style={
-                          highlightSelection === index
-                            ? styles.optionHighlighter
-                            : styles.searchableText
-                        }>
-                        {doHighlightSearchQuerySubstring(item, searchQuery)}
-                      </Text>
-                    </View>
-                  </View>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
+
+          {/* Conditionally render loading indicator */}
+          {isLoading && (
+            <View style={styles.loadingIndicatorContainer}>
+              <ActivityIndicator size="large" color="#000" />
+              <Text>Loading...</Text>
+            </View>
+          )}
+
+          {!isLoading && (
+            <>
+              <View style={{marginTop: 5, width: '100%'}}>
+                <Text style={styles.suggestionsText}>
+                  {searchQuery
+                    ? suggestions.length > 0
+                      ? 'Suggested'
+                      : 'No Suggestions'
+                    : 'Recent Searches'}
+                </Text>
+              </View>
+              <View style={styles.searchableContainer}>
+                <FlatList
+                  data={searchQuery ? suggestions : searchables}
+                  keyExtractor={(item, index) => `${index}-${item}`}
+                  renderItem={({item, index}) => (
+                    <TouchableOpacity
+                      onPress={() => {
+                        setHighlightSelection(index);
+                        setSearchQuery(item);
+                      }}>
+                      <View style={styles.searchableSubContainer}>
+                        <View style={{marginHorizontal: 10}}>
+                          <MaterialIcons
+                            name={
+                              searchQuery ? 'search' : 'youtube-searched-for'
+                            }
+                            size={20}
+                            style={{color: 'lightgrey'}}
+                          />
+                        </View>
+                        <View>
+                          <Text
+                            style={
+                              highlightSelection === index
+                                ? styles.optionHighlighter
+                                : styles.searchableText
+                            }>
+                            {doHighlightSearchQuerySubstring(item, searchQuery)}
+                          </Text>
+                        </View>
+                      </View>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            </>
+          )}
+
           <TouchableOpacity style={styles.closeButton} onPress={onClose}>
             <MaterialIcons
               name="close"

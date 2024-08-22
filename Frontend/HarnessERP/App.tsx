@@ -204,7 +204,7 @@ const App = () => {
             label="Home"
             onPress={() => navigation.navigate('HomeScreen')}
           />
-          <DrawerItem
+          {/* <DrawerItem
             // icon={({ color, size }) => <MaterialIcons name="notifications-on" color={color} size={size} />}
             icon={({size}) => (
               <MaterialIcons
@@ -263,7 +263,7 @@ const App = () => {
             )}
             label="Approval"
             onPress={() => navigation.navigate('ApprovalScreen')}
-          />
+          /> */}
           <DrawerItem
             // icon={({ color, size }) => <MaterialIcons name="logout" color={color} size={size} />}
             icon={({size}) => (
@@ -281,7 +281,7 @@ const App = () => {
             // icon={({ color, size }) => <MaterialIcons name="logout" color={color} size={size} />}
             icon={({size}) => (
               <MaterialIcons
-                name="reset"
+                name="lock-reset"
                 color={CustomThemeColors.menuIconColor}
                 size={size}
               />
@@ -331,11 +331,11 @@ const App = () => {
                 component={IssueGroups}
                 options={{headerShown: false}}
               /> */}
-              <Stack.Screen
+              {/* <Stack.Screen
                 name="TestScreen"
                 component={TestScreen}
                 options={{headerShown: false}}
-              />
+              /> */}
               {/* <Stack.Screen
                 name="TableComponent"
                 component={TableComponent}
@@ -346,15 +346,12 @@ const App = () => {
                 component={CustomTable}
                 options={{headerShown: false}}
                 /> */}
-              {/* <Stack.Screen
-                name="ResetPassword"  
+              <Stack.Screen
+                name="ResetPassword"
                 component={ResetPassword}
                 options={{headerShown: false}}
-              />  */}
-              {/* <Stack.Screen
-                name="AssectSkel"
-                component={AssetSkel}
-              /> */}
+              />
+              <Stack.Screen name="AssectSkel" component={AssetSkel} />
               <Stack.Screen
                 name="HomeScreen"
                 component={HomeScreen}

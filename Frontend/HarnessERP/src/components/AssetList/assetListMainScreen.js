@@ -263,23 +263,27 @@ const AssetListMainScreen = () => {
   const [criteriaResponse, setCriteriaResponse] = useState([]);
 
   const [filteredData, setFilteredData] = useState([]);
+  const [reverseData, setReverseData] = useState([]);
 
   const [subFilteredData, setSubFilteredData] = useState([]);
-
   useEffect(() => {
     // if (subFilteredData >= 0) {
     console.log(
       'asset main : 876689090hjhjjhj87 subFilteredData : ',
       subFilteredData,
     );
+
     fetchData();
     // setFilteredData([]);
     // setFilteredData(subFilteredData);
+
     setShowSortPopup1(false);
     setCurrentPage(1);
     // criteriaResponse.totalPages = 1;
     // }
   }, [subFilteredData]);
+
+  useEffect(()=>{fetchData()},{selectedDepartment,selectedLocation,selectedStatus})
   //prop 1
   const filterOptionsAPI = '/api/assetList/getSubFilterOptions';
 
@@ -299,6 +303,7 @@ const AssetListMainScreen = () => {
   const [tempSelectedLocCategories, setTempSelectedLocCategories] = useState([
     ...selectedCategories,
   ]);
+  // const [isSearchData, setIsSearchData] = useState(0);
 
   const [displayData, setDisplayData] = useState(filteredData);
   const itemsPerPage = 10;
@@ -317,28 +322,38 @@ const AssetListMainScreen = () => {
     currentPage,
   ]);
 
-  useEffect(() => {
-    // console.log('searchData' + searchData);
-    // if(searchData.length>0){
-    //   setFilteredData(null)
-    // }
-    // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.assetClassifications)
-    // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.includes(assetClassifications))
-  }, [
-    filteredData,
-    searchData,
-    handleSearchLoad,
-    tempSelectedStatusCategories,
-  ]);
+  // useEffect(() => {
+  //   // console.log('searchData' + searchData);
+  //   // if(searchData.length>0){
+  //   //   setFilteredData(null)
+  //   // }
+  //   // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.assetClassifications)
+  //   // console.log("selectedItemsHistory+++++++"+selectedItemsHistory.includes(assetClassifications))
+  // }, [
+  //   filteredData,
+  //   searchData,
+  //   handleSearchLoad,
+  // ]);
 
-  useEffect(() => {}, [displayData, tempSelectedStatusCategories]);
+  useEffect(() => {
+    console.log('display Loggg');
+  }, [displayData, selectedDepartment]);
 
   useEffect(() => {
     const data = searchData.length > 0 ? searchData : filteredData;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     setDisplayData(data.slice(startIndex, endIndex));
-  }, [searchData, filteredData, currentPage]);
+    // console.log('display data slice'+data[0].deptName)
+    console.log('display data slice');
+  }, [searchData]);
+
+  useEffect(() => {
+    const data = filteredData;
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    setDisplayData(data.slice(startIndex, endIndex));
+  }, [filteredData]);
 
   const nextPage = () => {
     const data = searchData.length > 0 ? searchData : filteredData;
@@ -480,6 +495,7 @@ const AssetListMainScreen = () => {
     }
   };
 
+  // useEffect(() => {console.log("sdhsfhskfklklfsdfsd");handleRefresh()}, []);
   // FILTERED DATA
   const fetchData = async () => {
     try {
@@ -488,7 +504,7 @@ const AssetListMainScreen = () => {
 
       const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
-      console.log('Token with bearer:', token);
+      // console.log('Token with bearer:', token);
 
       // Fetch data from the API
       const response = await fetch(`${API_URL}/api/assetList/mainFilters`, {
@@ -513,7 +529,7 @@ const AssetListMainScreen = () => {
       }
 
       const data = await response.json();
-      console.log('All data fetched:', data.length);
+      // console.log('All data fetched:', data.length);
 
       // Filter the data based on selected locations, departments, status, and classification names
       const filteredData = data.filter(item => {
@@ -530,29 +546,47 @@ const AssetListMainScreen = () => {
           selectedItemsHistory.assetClassifications.includes(
             item.classificationName,
           );
-        const type =
+        const typeMatch =
           selectedItemsHistory.assetTypes.length === 0 ||
           selectedItemsHistory.assetTypes.includes(item.type);
-        const subDeptName =
+        const subDeptNameMatch =
           selectedItemsHistory.subDepartments.length === 0 ||
           selectedItemsHistory.subDepartments.includes(item.subDeptName);
+
         return (
           locationMatch &&
           departmentMatch &&
           statusMatch &&
           classificationMatch &&
-          type &&
-          subDeptName
+          typeMatch &&
+          subDeptNameMatch
         );
       });
 
-      // Process and update the filtered data
-      setSearchData([]);
-      setCriteriaResponse(filteredData);
-      setPageableData(filteredData.pageable || {}); // Assuming pageable data is the same for all requests
-      setFilteredData(filteredData);
+      // Determine if filters are applied
+      const filtersApplied =
+        selectedLocation.length > 0 ||
+        selectedDepartment.length > 0 ||
+        selectedStatus.length > 0 ||
+        selectedItemsHistory.assetClassifications.length > 0 ||
+        selectedItemsHistory.assetTypes.length > 0 ||
+        selectedItemsHistory.subDepartments.length > 0;
 
-      console.log('Filtered data:', filteredData.slice(0, 9));
+      // Set isSearchData based on whether any filters are applied
+      // setIsSearchData(filtersApplied ? 1 : 0);
+
+      // If no filters are applied, reset the searchData
+      if (filtersApplied) {
+        setSearchData([]);
+      }
+
+      setCriteriaResponse(filteredData);
+      setPageableData(filteredData.pageable || {}); // Handle pageable if needed
+      setFilteredData(filteredData);
+      const reversedData = [...filteredData].reverse(); // Ensure immutability by spreading filteredData
+      setReverseData(reversedData);
+
+      // console.log('Filtered data:', filteredData.slice(0, 9));
     } catch (error) {
       console.error('Error fetching or filtering data:', error);
     } finally {
@@ -560,15 +594,26 @@ const AssetListMainScreen = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, [
-    // selectedDepartment,
-    // selectedLocation,
-    // selectedStatus,
-    currentPage,
-    sortBy,
-  ]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [
+  //   currentPage,
+  //   sortBy,
+  //   // selectedLocation,
+  //   // selectedDepartment,
+  //   // selectedStatus,
+  //   // selectedItemsHistory,
+  // ]);
+
+  // useEffect(() => {
+  //   fetchData();
+  // }, [
+  //   // selectedDepartment,
+  //   // selectedLocation,
+  //   // selectedStatus,
+  //   currentPage,
+  //   sortBy,
+  // ]);
 
   const toTitleCase = str => {
     if (str) {
@@ -654,7 +699,8 @@ const AssetListMainScreen = () => {
           visible={searchModalVisible}
           onClose={closeSearchModal}
           onSearch={handleSearchLoad}
-          // setSearchData={setSearchData}
+          isLoading={isLoading}
+          setIsLoading={setIsLoading}
         />
 
         <View style={{alignItems: 'center'}}>

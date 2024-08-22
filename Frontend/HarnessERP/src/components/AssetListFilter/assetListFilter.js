@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flexDirection: 'row',
-    justifyContent: 'flex-end',
+    justifyContent: 'center',
     marginTop: 20,
   },
   button: {
@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#007BFF',
     borderRadius: 5,
-    marginLeft: 10,
+    marginHorizontal: 20,
   },
   buttonDisabled: {
     opacity: 0.5,

@@ -25,12 +25,12 @@ const styles = StyleSheet.create({
     // position: 'absolute',
     bottom: 0,
     zIndex: 1,
-    height:width < 600 ? 40 : 80,
-    width:'100%',
-  }, 
-  footerContainer:{
+    height: width < 600 ? 40 : 80,
+    width: '100%',
+  },
+  footerContainer: {
     // flex:1
-    marginTop:width > 600 && 210 
+    marginTop: width > 600 && 210,
   },
   foot: {
     // flex:1,
@@ -41,11 +41,11 @@ const styles = StyleSheet.create({
   },
   version: {
     position: 'absolute',
-    bottom: 40,
+    bottom: width < 600 ? hp('2%') : hp('4.1%'),
     left: 0,
     right: 0,
     textAlign: 'center',
-    color:'white',
+    color: 'white',
     zIndex: 10,
   },
   version1: {
@@ -118,7 +118,7 @@ const styles = StyleSheet.create({
   },
   subcontainer2: {
     alignItems: 'center',
-    marginTop:60
+    marginTop: 60,
   },
   input: {
     width: wp('80%'),
@@ -175,21 +175,23 @@ const styles = StyleSheet.create({
   },
   backgroundImage: {
     flex: 1,
-    position:'relative'
-    // resizeMode: 'cover', 
+    position: 'relative',
+    // resizeMode: 'cover',
     // width:800,
     // height:900,
     // justifyContent: 'center',
   },
 });
 
-{/* <ImageBackground
+{
+  /* <ImageBackground
 source={require('../../images/Group74.png')} // Replace with your image URL or local asset
 style={styles.backgroundImage}>
 {/* <Image
   style={styles.body}
   source={require('../../images/Group74.png')}
-/> */}
+/> */
+}
 
 // </ImageBackground> */}
 // const styles = StyleSheet.create({

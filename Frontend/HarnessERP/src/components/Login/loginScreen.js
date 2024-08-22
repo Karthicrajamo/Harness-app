@@ -23,8 +23,8 @@ import CustomAlert from '../common-utils/CustomAlert';
 import {sharedData} from './UserId';
 
 const LoginScreen = () => {
-  const [username, setUsername] = useState('');
-  const [Password, setPassword] = useState('');
+  const [username, setUsername] = useState('fund');
+  const [Password, setPassword] = useState('a');
   const [checked, setChecked] = useState(false);
   const navigation = useNavigation();
   const {width, height} = Dimensions.get('window');
