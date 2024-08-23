@@ -173,7 +173,7 @@ const SearchModal = ({visible, onClose, onSearch, isLoading, setIsLoading}) => {
           return;
         }
         const data = await response.json();
-        // console.log('Response Data:', data);
+        console.log('Response Data: batches;', data);
         batches.push(data);
       }
       // console.log('DataResult :', batches);

@@ -334,7 +334,7 @@ const AssetListMainScreen = () => {
     sortBy,
     selectedDepCategories,
     selectedStatusCategories,
-    selectedCategories
+    selectedCategories,
   ]);
   // useEffect(() => {
   //   fetchData();
@@ -362,7 +362,7 @@ const AssetListMainScreen = () => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     setDisplayData(data.slice(startIndex, endIndex));
-  }, [searchData,filteredData]);
+  }, [searchData, filteredData]);
 
   const nextPage = () => {
     const data = searchData.length > 0 ? searchData : filteredData;
@@ -588,10 +588,11 @@ const AssetListMainScreen = () => {
         selectedItemsHistory.subDepartments.length > 0;
 
       // Set isSearchData based on whether any filters are applied
-      setIsSearchData(filtersApplied ? 1 : 0);
+      // setIsSearchData(filtersApplied ? 1 : 0);
 
       // If no filters are applied, reset the searchData
       if (filtersApplied) {
+        console.log('searchData clear::::');
         setSearchData([]);
       }
 
@@ -627,9 +628,15 @@ const AssetListMainScreen = () => {
   const handleSearchLoad = data => {
     console.log('searchLOad+' + data);
     setCurrentPage(1);
-    // setSearchData([]);
+    setSearchData([]);
     setSearchData(data);
-    // setFilteredData([]);
+    setSelectedDepartment('');
+    setSelectedDepCategories('');
+    setSelectedCategories('');
+    setSelectedLocation('');
+    setSelectedStatus('');
+    setSelectedStatusCategories('');
+    setFilteredData([]);
     setFilteredData(data);
   };
 
@@ -1100,15 +1107,19 @@ const AssetListMainScreen = () => {
                     />
                   </View>
                 </View>
-                <View style={{marginLeft: 10}}>
-                  <TouchableOpacity onPress={handlePress}>
-                    <MaterialIcons
-                      name={iconValue === 0 ? 'arrow-upward' : 'arrow-downward'}
-                      size={30}
-                      style={{color: CustomThemeColors.primary}}
-                    />
-                  </TouchableOpacity>
-                </View>
+                {!searchData.length > 0 && (
+                  <View style={{marginLeft: 10}}>
+                    <TouchableOpacity onPress={handlePress}>
+                      <MaterialIcons
+                        name={
+                          iconValue === 0 ? 'arrow-upward' : 'arrow-downward'
+                        }
+                        size={30}
+                        style={{color: CustomThemeColors.primary}}
+                      />
+                    </TouchableOpacity>
+                  </View>
+                )}
               </TouchableOpacity>
             )}
           </View>
@@ -1475,7 +1486,10 @@ const AssetListMainScreen = () => {
                       marginHorizontal: 10,
                     }}>
                     {currentPage} /{' '}
-                    {Math.ceil(filteredData.length / itemsPerPage)}
+                    {Math.ceil(
+                      (searchData.length > 0 ? searchData : filteredData)
+                        .length / itemsPerPage,
+                    )}
                   </Text>
                 </View>
               </TouchableOpacity>
