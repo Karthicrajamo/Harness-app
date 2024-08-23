@@ -54,6 +54,16 @@ const AssetListMainScreen = () => {
   const navigation = useNavigation(); //For Nagivation
   const [isLoading, setIsLoading] = useState(false);
 
+  const [iconValue, setIconValue] = useState(0); // 0 for ascending, 1 for descending
+  const [sortOption, setSortOption] = useState('');
+
+  const handlePress = () => {
+    setIconValue(prevValue => (prevValue === 0 ? 1 : 0)); // Toggle between 0 and 1
+    const temp = filteredData;
+    setFilteredData(reverseData);
+    setReverseData(temp);
+  };
+
   //Close Button Code
   const handleHomeScreen = async () => {
     navigation.navigate('HomeScreen');
@@ -83,6 +93,7 @@ const AssetListMainScreen = () => {
   const handleSortChange = option => {
     setSortBy(option); // Update sortBy state based on user selection
     fetchData();
+    setIconValue(0);
   };
   //Filter Button Code
   const [showSortPopup1, setShowSortPopup1] = useState(false); // State to control visibility of the sort popup
@@ -109,7 +120,7 @@ const AssetListMainScreen = () => {
     fetchLocations();
     fetchStatuses();
     fetchData();
-  }, [currentPage, selectedDepartment, selectedStatus]);
+  }, [currentPage]);
 
   const [selectedCategories, setSelectedCategories] = useState([]);
   const [selectedDepCategories, setSelectedDepCategories] = useState([]);
@@ -283,18 +294,17 @@ const AssetListMainScreen = () => {
     // }
   }, [subFilteredData]);
 
-  useEffect(()=>{fetchData()},{selectedDepartment,selectedLocation,selectedStatus})
   //prop 1
   const filterOptionsAPI = '/api/assetList/getSubFilterOptions';
 
   //prop 2
   const filterCriteriaAPI = '/api/assetList/subFilterCriteria';
 
-  const [pageableData, setPageableData] = useState([]);
+  // const [pageableData, setPageableData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [sizePerPage, setSizePerPage] = useState(5);
+  // const [sizePerPage, setSizePerPage] = useState(5);
   const [previouslySelectedSort, setPreviouslySelectedSort] = useState([]);
-  const [searchData, setSearchData] = useState([]);
+  // const [searchData, setSearchData] = useState([]);
   const [tempSelectedStatusCategories, setTempSelectedStatusCategories] =
     useState([...selectedStatusCategories]);
   const [tempSelectedDepCategories, setTempSelectedDepCategories] = useState([
@@ -320,7 +330,11 @@ const AssetListMainScreen = () => {
     selectedDepCategories,
     selectedCategories,
     currentPage,
+    sortBy,
   ]);
+  // useEffect(() => {
+  //   fetchData();
+  // }, [sortBy]);
 
   // useEffect(() => {
   //   // console.log('searchData' + searchData);
@@ -337,16 +351,16 @@ const AssetListMainScreen = () => {
 
   useEffect(() => {
     console.log('display Loggg');
-  }, [displayData, selectedDepartment]);
+  }, [displayData]);
 
   useEffect(() => {
-    const data = searchData.length > 0 ? searchData : filteredData;
+    const data = filteredData;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     setDisplayData(data.slice(startIndex, endIndex));
     // console.log('display data slice'+data[0].deptName)
     console.log('display data slice');
-  }, [searchData]);
+  }, [filteredData]);
 
   useEffect(() => {
     const data = filteredData;
@@ -356,7 +370,7 @@ const AssetListMainScreen = () => {
   }, [filteredData]);
 
   const nextPage = () => {
-    const data = searchData.length > 0 ? searchData : filteredData;
+    const data = filteredData;
     const totalPages = Math.ceil(data.length / itemsPerPage);
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -367,7 +381,7 @@ const AssetListMainScreen = () => {
   };
 
   const prevPage = () => {
-    const data = searchData.length > 0 ? searchData : filteredData;
+    const data = filteredData;
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
       const startIndex = (currentPage - 2) * itemsPerPage;
@@ -377,7 +391,7 @@ const AssetListMainScreen = () => {
   };
 
   const jumpToFirstPage = () => {
-    const data = searchData.length > 0 ? searchData : filteredData;
+    const data = filteredData;
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
 
@@ -390,7 +404,7 @@ const AssetListMainScreen = () => {
   };
 
   const jumpToLastPage = () => {
-    const data = searchData.length > 0 ? searchData : filteredData;
+    const data = filteredData;
     const totalPages = Math.ceil(data.length / itemsPerPage);
     console.log('totalPages___' + totalPages);
     setCurrentPage(totalPages);
@@ -495,12 +509,16 @@ const AssetListMainScreen = () => {
     }
   };
 
-  // useEffect(() => {console.log("sdhsfhskfklklfsdfsd");handleRefresh()}, []);
+  const [oneTimeRefresh, setOneTimeRefresh] = useState(0);
+
   // FILTERED DATA
   const fetchData = async () => {
     try {
       console.log('sortBy:', sortBy);
-      setIsLoading(true);
+      if (oneTimeRefresh === 0) {
+        setIsLoading(true);
+      }
+      setOneTimeRefresh(1);
 
       const credentials = await Keychain.getGenericPassword({service: 'jwt'});
       const token = credentials.password;
@@ -564,26 +582,27 @@ const AssetListMainScreen = () => {
       });
 
       // Determine if filters are applied
-      const filtersApplied =
-        selectedLocation.length > 0 ||
-        selectedDepartment.length > 0 ||
-        selectedStatus.length > 0 ||
-        selectedItemsHistory.assetClassifications.length > 0 ||
-        selectedItemsHistory.assetTypes.length > 0 ||
-        selectedItemsHistory.subDepartments.length > 0;
+      // const filtersApplied =
+      //   selectedLocation.length > 0 ||
+      //   selectedDepartment.length > 0 ||
+      //   selectedStatus.length > 0 ||
+      //   selectedItemsHistory.assetClassifications.length > 0 ||
+      //   selectedItemsHistory.assetTypes.length > 0 ||
+      //   selectedItemsHistory.subDepartments.length > 0;
 
       // Set isSearchData based on whether any filters are applied
       // setIsSearchData(filtersApplied ? 1 : 0);
 
       // If no filters are applied, reset the searchData
-      if (filtersApplied) {
-        setSearchData([]);
-      }
+      // if (filtersApplied) {
+      //   setSearchData([]);
+      // }
 
-      setCriteriaResponse(filteredData);
-      setPageableData(filteredData.pageable || {}); // Handle pageable if needed
+      // setCriteriaResponse(filteredData);
+      // setPageableData(filteredData.pageable || {}); // Handle pageable if needed
       setFilteredData(filteredData);
-      const reversedData = [...filteredData].reverse(); // Ensure immutability by spreading filteredData
+      // setFilteredData((prevData) => Array(500).fill(prevData).flat());
+      const reversedData = [...filteredData].reverse();
       setReverseData(reversedData);
 
       // console.log('Filtered data:', filteredData.slice(0, 9));
@@ -593,27 +612,6 @@ const AssetListMainScreen = () => {
       setIsLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [
-  //   currentPage,
-  //   sortBy,
-  //   // selectedLocation,
-  //   // selectedDepartment,
-  //   // selectedStatus,
-  //   // selectedItemsHistory,
-  // ]);
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [
-  //   // selectedDepartment,
-  //   // selectedLocation,
-  //   // selectedStatus,
-  //   currentPage,
-  //   sortBy,
-  // ]);
 
   const toTitleCase = str => {
     if (str) {
@@ -632,8 +630,8 @@ const AssetListMainScreen = () => {
   const handleSearchLoad = data => {
     console.log('searchLOad+' + data);
     setCurrentPage(1);
-    setSearchData([]);
-    setSearchData(data);
+    // setSearchData([]);
+    // setSearchData(data);
     setFilteredData([]);
     setFilteredData(data);
   };
@@ -1105,6 +1103,15 @@ const AssetListMainScreen = () => {
                     />
                   </View>
                 </View>
+                <View style={{marginLeft: 10}}>
+                  <TouchableOpacity onPress={handlePress}>
+                    <MaterialIcons
+                      name={iconValue === 0 ? 'arrow-upward' : 'arrow-downward'}
+                      size={30}
+                      style={{color: CustomThemeColors.primary}}
+                    />
+                  </TouchableOpacity>
+                </View>
               </TouchableOpacity>
             )}
           </View>
@@ -1471,10 +1478,7 @@ const AssetListMainScreen = () => {
                       marginHorizontal: 10,
                     }}>
                     {currentPage} /{' '}
-                    {Math.ceil(
-                      (searchData.length > 0 ? searchData : filteredData)
-                        .length / itemsPerPage,
-                    )}
+                    {Math.ceil(filteredData.length / itemsPerPage)}
                   </Text>
                 </View>
               </TouchableOpacity>

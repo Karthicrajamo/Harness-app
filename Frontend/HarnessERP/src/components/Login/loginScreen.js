@@ -1,4 +1,4 @@
-import React, {useState,useEffect} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   TextInput,
@@ -18,7 +18,7 @@ import styles from './loginScreenStyles';
 import * as Keychain from 'react-native-keychain';
 import LoadingIndicator from '../commonUtils/LoadingIndicator';
 // import { API_URL } from '@env';
-import {fetchApiUrl,API_URL} from '../ApiUrl';
+import {fetchApiUrl, API_URL} from '../ApiUrl';
 import CustomAlert from '../common-utils/CustomAlert';
 import {sharedData} from './UserId';
 
@@ -33,7 +33,7 @@ const LoginScreen = () => {
   const [isAlertValidVisible, setIsAlertValidVisible] = useState(false);
 
   useEffect(() => {
-    fetchApiUrl().then((url) => {
+    fetchApiUrl().then(url => {
       console.log('Fetched API URL:', url);
     });
   }, []);
@@ -181,7 +181,7 @@ style={styles.backgroundImage}> */}
           </Text>
           <Image
             style={styles.headLogoBg}
-            source={require('../../images/AV_logo.png')}
+            source={require('../../images/logo.png')}
           />
           <View style={styles.subcontainer2}>
             <TextInput
