@@ -273,6 +273,7 @@ const AssetListMainScreen = () => {
 
   const [criteriaResponse, setCriteriaResponse] = useState([]);
 
+  const [searchData, setSearchData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [reverseData, setReverseData] = useState([]);
 
@@ -313,7 +314,7 @@ const AssetListMainScreen = () => {
   const [tempSelectedLocCategories, setTempSelectedLocCategories] = useState([
     ...selectedCategories,
   ]);
-  // const [isSearchData, setIsSearchData] = useState(0);
+  const [isSearchData, setIsSearchData] = useState(0);
 
   const [displayData, setDisplayData] = useState(filteredData);
   const itemsPerPage = 10;
@@ -357,23 +358,14 @@ const AssetListMainScreen = () => {
   }, [displayData]);
 
   useEffect(() => {
-    const data = filteredData;
+    const data = searchData.length > 0 ? searchData : filteredData;
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
     setDisplayData(data.slice(startIndex, endIndex));
-    // console.log('display data slice'+data[0].deptName)
-    console.log('display data slice');
-  }, [filteredData]);
-
-  useEffect(() => {
-    const data = filteredData;
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    setDisplayData(data.slice(startIndex, endIndex));
-  }, [filteredData]);
+  }, [searchData,filteredData]);
 
   const nextPage = () => {
-    const data = filteredData;
+    const data = searchData.length > 0 ? searchData : filteredData;
     const totalPages = Math.ceil(data.length / itemsPerPage);
     if (currentPage < totalPages) {
       setCurrentPage(currentPage + 1);
@@ -384,7 +376,7 @@ const AssetListMainScreen = () => {
   };
 
   const prevPage = () => {
-    const data = filteredData;
+    const data = searchData.length > 0 ? searchData : filteredData;
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
       const startIndex = (currentPage - 2) * itemsPerPage;
@@ -394,7 +386,7 @@ const AssetListMainScreen = () => {
   };
 
   const jumpToFirstPage = () => {
-    const data = filteredData;
+    const data = searchData.length > 0 ? searchData : filteredData;
 
     const totalPages = Math.ceil(data.length / itemsPerPage);
 
@@ -407,7 +399,7 @@ const AssetListMainScreen = () => {
   };
 
   const jumpToLastPage = () => {
-    const data = filteredData;
+    const data = searchData.length > 0 ? searchData : filteredData;
     const totalPages = Math.ceil(data.length / itemsPerPage);
     console.log('totalPages___' + totalPages);
     setCurrentPage(totalPages);
@@ -587,21 +579,21 @@ const AssetListMainScreen = () => {
       });
 
       // Determine if filters are applied
-      // const filtersApplied =
-      //   selectedLocation.length > 0 ||
-      //   selectedDepartment.length > 0 ||
-      //   selectedStatus.length > 0 ||
-      //   selectedItemsHistory.assetClassifications.length > 0 ||
-      //   selectedItemsHistory.assetTypes.length > 0 ||
-      //   selectedItemsHistory.subDepartments.length > 0;
+      const filtersApplied =
+        selectedLocation.length > 0 ||
+        selectedDepartment.length > 0 ||
+        selectedStatus.length > 0 ||
+        selectedItemsHistory.assetClassifications.length > 0 ||
+        selectedItemsHistory.assetTypes.length > 0 ||
+        selectedItemsHistory.subDepartments.length > 0;
 
       // Set isSearchData based on whether any filters are applied
-      // setIsSearchData(filtersApplied ? 1 : 0);
+      setIsSearchData(filtersApplied ? 1 : 0);
 
       // If no filters are applied, reset the searchData
-      // if (filtersApplied) {
-      //   setSearchData([]);
-      // }
+      if (filtersApplied) {
+        setSearchData([]);
+      }
 
       // setCriteriaResponse(filteredData);
       // setPageableData(filteredData.pageable || {}); // Handle pageable if needed
@@ -636,8 +628,8 @@ const AssetListMainScreen = () => {
     console.log('searchLOad+' + data);
     setCurrentPage(1);
     // setSearchData([]);
-    // setSearchData(data);
-    setFilteredData([]);
+    setSearchData(data);
+    // setFilteredData([]);
     setFilteredData(data);
   };
 
