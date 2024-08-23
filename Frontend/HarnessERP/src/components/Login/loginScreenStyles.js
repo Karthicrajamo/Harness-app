@@ -17,7 +17,7 @@ const styles = StyleSheet.create({
   body: {
     position: 'absolute',
     top: 0,
-    height: width < 600 ? hp('100') : hp('85'),
+    height: width < 600 ? hp('90') : hp('85'),
     width: '100%',
     zIndex: 10,
   },

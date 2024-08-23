@@ -184,28 +184,38 @@ function AssetListDetails(props) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
   const [selectedImageModal, setSelectedImageModal] = useState(false);
 
-  
   const openModal = index => {
     setSelectedImageIndex(index); // Set the index of the selected image
   };
-  
+
   // Function to close the modal
   const modelClose = () => {
-    console.log("set null::::"+selectedImageIndex)
+    console.log('set null::::' + selectedImageIndex);
     setSelectedImageIndex(null); // Set index to null to close the modal
   };
-  
+
   const renderImage = () => {
     if (assetImagesData.length > 0) {
       return (
         <View style={styles.imgContainer}>
           <FlatList
             data={assetImagesData}
-            renderItem={({ item, index }) => {
+            renderItem={({item, index}) => {
               const base64Image = `data:image/jpeg;base64,${item.image}`;
               return (
                 <TouchableOpacity onPress={() => openModal(index)}>
-                  <Image source={{ uri: base64Image }} style={styles.image} />
+                  <Image
+                    source={{uri: base64Image}}
+                    style={[styles.image, {width: 335, objectFit: 'fill'}]}
+                  />
+                  <Text
+                    style={{
+                      textAlign: 'center',
+                      fontWeight: 'bold',
+                      color: CustomThemeColors.primary,
+                    }}>
+                    {index + 1} / {assetImagesData.length}
+                  </Text>
                 </TouchableOpacity>
               );
             }}
@@ -225,7 +235,7 @@ function AssetListDetails(props) {
       <View style={styles.imgContainer}>
         <Image
           source={require('../../images/Component1.png')}
-          style={[styles.image, { objectFit: 'contain' }]}
+          style={[styles.image, {objectFit: 'contain'}]}
         />
       </View>
     );
@@ -242,7 +252,7 @@ function AssetListDetails(props) {
       </View>
     );
   };
-  
+
   // ----------------------------------------------------------------------------------------------------
   useEffect(() => {}, [selectedImageIndex]);
   // Fetch data for sub details Label Top
@@ -360,7 +370,10 @@ function AssetListDetails(props) {
                   renderHeader={() => (
                     <TouchableOpacity
                       style={styles.closeButton}
-                      onPress={()=>{modelClose();console.log("dfsdfsdfsdsd")}} // Close the modal when the "X" is pressed
+                      onPress={() => {
+                        modelClose();
+                        console.log('dfsdfsdfsdsd');
+                      }} // Close the modal when the "X" is pressed
                     >
                       <Text style={styles.closeText}>X</Text>
                     </TouchableOpacity>
@@ -965,7 +978,7 @@ const styles = StyleSheet.create({
     aspectRatio: 1, // Maintains aspect ratio
   },
   image: {
-    width: width > 600 ? 700 : 340,
+    width: width > 600 ? 700 : 370,
     height: width > 600 ? 400 : 170,
   },
   textContainer: {
@@ -1112,7 +1125,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.7)',
     padding: 10,
     borderRadius: 5,
-    zIndex:10
+    zIndex: 10,
   },
   closeButtonText: {
     color: '#000',
