@@ -92,7 +92,7 @@ const AssetListMainScreen = () => {
   const [sortBy, setSortBy] = useState('assetCode');
   const handleSortChange = option => {
     setSortBy(option); // Update sortBy state based on user selection
-    fetchData();
+    // fetchData();
     setIconValue(0);
   };
   //Filter Button Code
@@ -104,10 +104,10 @@ const AssetListMainScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [statusModalVisible, setStatusModalVisible] = useState(false);
   const [depModalVisible, setDepModalVisible] = useState(false);
-  const handleCloseModal = () => {
-    setModalVisible(false);
-    setDepModalVisible(false);
-  };
+  // const handleCloseModal = () => {
+  //   setModalVisible(false);
+  //   setDepModalVisible(false);
+  // };
 
   const openQrScanner = () => {
     navigation.navigate('QrScanner');
@@ -326,11 +326,14 @@ const AssetListMainScreen = () => {
     // Fetch data whenever selectedStatusCategories or currentPage changes
     fetchData();
   }, [
-    selectedStatusCategories,
-    selectedDepCategories,
-    selectedCategories,
+    // selectedStatusCategories,
+    // selectedDepCategories,
+    // selectedCategories,
     currentPage,
     sortBy,
+    selectedDepCategories,
+    selectedStatusCategories,
+    selectedCategories
   ]);
   // useEffect(() => {
   //   fetchData();
@@ -515,6 +518,8 @@ const AssetListMainScreen = () => {
   const fetchData = async () => {
     try {
       console.log('sortBy:', sortBy);
+      console.log('sortBy depchat:', selectedDepCategories);
+      console.log('sortBy depchat2:', selectedDepartment);
       if (oneTimeRefresh === 0) {
         setIsLoading(true);
       }
@@ -867,7 +872,7 @@ const AssetListMainScreen = () => {
                 setSelectedDepCategories(tempSelectedDepCategories);
                 setSelectedDepartment(tempSelectedDepCategories);
                 setCurrentPage(1);
-                fetchData();
+                // fetchData();
                 setDepModalVisible(false);
               }}
             />
@@ -925,7 +930,7 @@ const AssetListMainScreen = () => {
                 setSelectedCategories(tempSelectedLocCategories);
                 setSelectedLocation(tempSelectedLocCategories);
                 setCurrentPage(1);
-                fetchData();
+                // fetchData();
                 setModalVisible(false);
               }}
             />
@@ -978,7 +983,7 @@ const AssetListMainScreen = () => {
                 setSelectedStatusCategories(tempSelectedStatusCategories);
                 setSelectedStatus(tempSelectedStatusCategories);
                 setCurrentPage(1);
-                fetchData();
+                // fetchData();
                 setStatusModalVisible(false);
               }}
             />
