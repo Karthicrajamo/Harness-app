@@ -106,6 +106,7 @@ const AssetListFilter = ({
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
+
       const data = await response.json();
       setListOfFilterOptionsMap(convertJsonToKeyValuePairArray(data));
       console.log("list filter-----"+convertJsonToKeyValuePairArray(data))
@@ -117,6 +118,7 @@ const AssetListFilter = ({
       console.error('Error fetching status:', error);
     }
   };
+
 
   const toTitleCase = str => {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -167,6 +169,7 @@ const AssetListFilter = ({
     return readableWords.join(' ');
   }
 
+
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.container}>
@@ -176,6 +179,7 @@ const AssetListFilter = ({
               <View key={index}>
                 <Text style={styles.filterTitle}>{makeReadable(item.title) }</Text>
                 {/* <Text style={styles.filterTitle}>{item.title == "assetClassifications"?"Asset Classification":"hii"}</Text> */}
+
                 <View style={styles.filterContainer}>
                   {item.data.map((element, idx) => (
                     <TouchableOpacity
@@ -205,6 +209,7 @@ const AssetListFilter = ({
                     handleSubFilter();
                     console.log('Filter Button Clicked');
                   
+
                 }}>
                 <Text style={styles.buttonText}>Filter</Text>
               </TouchableOpacity>
@@ -239,6 +244,7 @@ const styles = StyleSheet.create({
     fontWeight: '400',
     marginBottom: 8,
     color:'black'
+
   },
   filterContainer: {
     flexDirection: 'row',
